@@ -1,12 +1,13 @@
-﻿<Window x:Class="CMVideo.MainWindow"
+﻿<Window x:Class="CMVideo.Player"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMVideo"
+        xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Player" Height="450" Width="800">
     <Grid>
-        <Button Name="ExampleButton"  Content="Play" Height="50" Width="75" VerticalAlignment="Bottom" HorizontalAlignment="Left"></Button>
+        <uc:VideoView x:Name="VideoView" />
     </Grid>
 </Window>
