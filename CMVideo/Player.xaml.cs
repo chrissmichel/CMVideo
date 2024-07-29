@@ -29,6 +29,14 @@ namespace CMVideo
             VideoView.Content = _controls;
         }
 
+        public Player(string file_path)
+        {
+            InitializeComponent();
+
+            _controls = new Controls(this, file_path);
+            VideoView.Content = _controls;
+        }
+
         protected override void OnClosed(EventArgs e)
         {
             VideoView.Dispose();

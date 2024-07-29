@@ -24,7 +24,7 @@ namespace CMVideo
         readonly Player parent;
         LibVLC _libVLC;
         MediaPlayer _mediaPlayer;
-
+        string file_path;
         public Controls(Player Parent)
         {
             parent = Parent;
@@ -36,6 +36,19 @@ namespace CMVideo
             PlayButton.Click += PlayButton_Click;
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
+        }
+
+        public Controls(Player Parent, string file_path)
+        {
+            parent = Parent;
+            InitializeComponent();
+            // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
+            Parent.VideoView.Loaded += VideoView_Loaded;
+            PlayButton.Click += PlayButton_Click;
+            StopButton.Click += StopButton_Click;
+            Unloaded += Controls_Unloaded;
+            this.file_path = file_path;
+
         }
 
         private void Controls_Unloaded(object sender, RoutedEventArgs e)
@@ -65,7 +78,7 @@ namespace CMVideo
         {
             if (!parent.VideoView.MediaPlayer.IsPlaying)
             {
-                using (var media = new Media(_libVLC, new Uri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")))
+                using (var media = new Media(_libVLC, new Uri(file_path)))
                     parent.VideoView.MediaPlayer.Play(media);
             }
         }

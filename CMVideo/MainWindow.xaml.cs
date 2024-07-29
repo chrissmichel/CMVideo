@@ -22,6 +22,7 @@ namespace CMVideo
     /// </summary>
     public partial class MainWindow : Window
     {
+        string file_path = null;
         public MainWindow()
         {
             InitializeComponent();
@@ -30,7 +31,7 @@ namespace CMVideo
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
         {
-            var window = new Player();
+            var window = new Player(file_path);
             window.Show();
         }
 
@@ -47,6 +48,17 @@ namespace CMVideo
             fd.DefaultExt = "*.*";
             fd.InitialDirectory = "C:\\Users\\" + user + "\\Videos";
             fd.ShowDialog();
+
+            bool? success = fd.ShowDialog();
+            if (success == true)
+            {
+                file_path = fd.FileName;
+                Console.WriteLine("File path is : " + file_path);
+            }
+            else
+            {
+                // do nothing
+            }
         }
 
     }
