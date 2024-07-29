@@ -8,6 +8,6 @@
         mc:Ignorable="d"
         Title="Player" Height="450" Width="800">
     <Grid>
-        <uc:VideoView x:Name="VideoView" />
+        <uc:VideoView x:Name="VideoView"/>
     </Grid>
 </Window>
