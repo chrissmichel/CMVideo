@@ -9,5 +9,6 @@
   <StackPanel Orientation="Horizontal">
         <Button Content="Play" x:Name="PlayButton" Height="25" Width="50" VerticalAlignment="Bottom" HorizontalAlignment="Left"></Button>
         <Button Content="Stop" x:Name="StopButton" Height="25" Width="50" VerticalAlignment="Bottom" HorizontalAlignment="Left"></Button>
+        <Button Content="Pause" x:Name="PauseButton" Height="25" Width="50" VerticalAlignment="Bottom" HorizontalAlignment="Right"></Button>
     </StackPanel>
 </UserControl>

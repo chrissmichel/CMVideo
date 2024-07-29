@@ -35,6 +35,7 @@ namespace CMVideo
             Parent.VideoView.Loaded += VideoView_Loaded;
             PlayButton.Click += PlayButton_Click;
             StopButton.Click += StopButton_Click;
+            PauseButton.Click += PauseButton_Click;
             Unloaded += Controls_Unloaded;
         }
 
@@ -47,6 +48,7 @@ namespace CMVideo
             PlayButton.Click += PlayButton_Click;
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
+            PauseButton.Click += PauseButton_Click;
             this.file_path = file_path;
 
         }
@@ -74,6 +76,18 @@ namespace CMVideo
             }
         }
 
+        void PauseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if(parent.VideoView.MediaPlayer.IsPlaying)
+            {
+                parent.VideoView.MediaPlayer.Pause();
+            }
+
+        }
+        /**
+         *
+         *@param sender 
+         */
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             if (!parent.VideoView.MediaPlayer.IsPlaying)
