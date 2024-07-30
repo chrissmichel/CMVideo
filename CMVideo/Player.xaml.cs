@@ -20,6 +20,7 @@ namespace CMVideo
     public partial class Player : Window
     {
         readonly Controls _controls;
+        readonly MainWindow _mainWindow;
         public Player()
         {
             InitializeComponent();
@@ -27,6 +28,7 @@ namespace CMVideo
             _controls = new Controls(this);
 
             VideoView.Content = _controls;
+            VideoView.Content = _mainWindow;
         }
 
         public Player(string file_path)
@@ -35,6 +37,7 @@ namespace CMVideo
 
             _controls = new Controls(this, file_path);
             VideoView.Content = _controls;
+            VideoView.Content = _mainWindow;
         }
 
         protected override void OnClosed(EventArgs e)

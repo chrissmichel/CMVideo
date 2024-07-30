@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using LibVLCSharp.WPF;
 using Microsoft.Win32;
+
 namespace CMVideo
 {
     /// <summary>
@@ -47,13 +49,14 @@ namespace CMVideo
             OpenFileDialog fd = new OpenFileDialog();
             fd.DefaultExt = "*.*";
             fd.InitialDirectory = "C:\\Users\\" + user + "\\Videos";
-            fd.ShowDialog();
-
+            
             bool? success = fd.ShowDialog();
+
             if (success == true)
             {
                 file_path = fd.FileName;
                 Console.WriteLine("File path is : " + file_path);
+                Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
             }
             else
             {

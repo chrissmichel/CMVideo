@@ -45,6 +45,7 @@ namespace CMVideo
             InitializeComponent();
             // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
             Parent.VideoView.Loaded += VideoView_Loaded;
+            // Initialize buttons
             PlayButton.Click += PlayButton_Click;
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
@@ -64,6 +65,7 @@ namespace CMVideo
         {
             _libVLC = new LibVLC(enableDebugLogs: true);
             _mediaPlayer = new MediaPlayer(_libVLC);
+           
 
             parent.VideoView.MediaPlayer = _mediaPlayer;
         }
@@ -81,12 +83,17 @@ namespace CMVideo
             if(parent.VideoView.MediaPlayer.IsPlaying)
             {
                 parent.VideoView.MediaPlayer.Pause();
+                PauseButton.Background = Brushes.Crimson;
             }
-
+            else
+            {
+                parent.VideoView.MediaPlayer.Play();
+                PauseButton.Background = Brushes.Green;
+            }
         }
         /**
          *
-         *@param sender 
+         *@param sender Blue
          */
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
@@ -95,6 +102,6 @@ namespace CMVideo
                 using (var media = new Media(_libVLC, new Uri(file_path)))
                     parent.VideoView.MediaPlayer.Play(media);
             }
-        }
+           }
     }
 }
