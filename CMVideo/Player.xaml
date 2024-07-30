@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:CMVideo"
         xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
-        Title="Player" Height="800" Width="800">
+        Title="Player" Height="600" Width="800">
     <Grid>
+        
         <uc:VideoView Background="Black" x:Name="VideoView"/>
     </Grid>
 </Window>

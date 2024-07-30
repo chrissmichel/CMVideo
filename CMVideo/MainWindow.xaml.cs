@@ -63,6 +63,5 @@ namespace CMVideo
                 // do nothing
             }
         }
-
     }
 }
