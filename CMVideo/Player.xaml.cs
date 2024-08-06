@@ -21,15 +21,6 @@ namespace CMVideo
     {
         readonly Controls _controls;
         readonly MainWindow _mainWindow;
-        public Player()
-        {
-            InitializeComponent();
-
-            _controls = new Controls(this);
-
-            VideoView.Content = _controls;
-            VideoView.Content = _mainWindow;
-        }
 
         public Player(string file_path)
         {

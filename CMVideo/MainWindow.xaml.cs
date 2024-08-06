@@ -29,15 +29,17 @@ namespace CMVideo
         {
             InitializeComponent();
             ExampleButton.Click += ExampleButton_Click;
+            
         }
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
         {
+
             var window = new Player(file_path);
             window.Show();
         }
 
-        private void File_Button_Click(object sender, RoutedEventArgs e)
+        private string get_path(object sender, RoutedEventArgs e)
         {
             string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
@@ -62,6 +64,13 @@ namespace CMVideo
             {
                 // do nothing
             }
+
+            return "";
+        }
+
+        private void File_Button_Click(object sender, RoutedEventArgs e)
+        {
+            get_path(sender, e);
         }
     }
 }

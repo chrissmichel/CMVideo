@@ -12,8 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using LibVLCSharp.Shared;
+
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
+
 namespace CMVideo
 {
     /// <summary>
@@ -25,24 +28,13 @@ namespace CMVideo
         LibVLC _libVLC;
         MediaPlayer _mediaPlayer;
         string file_path;
-        public Controls(Player Parent)
-        {
-            parent = Parent;
-
-            InitializeComponent();
-
-            // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
-            Parent.VideoView.Loaded += VideoView_Loaded;
-            PlayButton.Click += PlayButton_Click;
-            StopButton.Click += StopButton_Click;
-            PauseButton.Click += PauseButton_Click;
-            Unloaded += Controls_Unloaded;
-        }
+        private DispatcherTimer _timer;
 
         public Controls(Player Parent, string file_path)
         {
             parent = Parent;
             InitializeComponent();
+            Core.Initialize();
             // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
             Parent.VideoView.Loaded += VideoView_Loaded;
             // Initialize buttons
@@ -52,10 +44,52 @@ namespace CMVideo
             PauseButton.Click += PauseButton_Click;
             this.file_path = file_path;
 
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMilliseconds(500);
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+           
+
+            if(_mediaPlayer != null)
+            {
+              _mediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
+              _mediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
+            
+            }
+            _timer.Start();
+        }
+
+        private void MediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() => videoSlider.Maximum = e.Length / 1000.0);
+        }
+
+        private void MediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
+        {
+            Dispatcher.Invoke(() => videoSlider.Value = e.Time / 1000.0);
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if ((VideoElement.Source != null) && (VideoElement.NaturalDuration.HasTimeSpan))
+            {
+                Slider1.Minimum = 0;
+                Slider1.Maximum = VideoElement.NaturalDuration.TimeSpan.TotalMilliseconds;
+                Slider1.Value = VideoElement.Position.TotalMilliseconds;
+            }
+        }
+
+        private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_mediaPlayer != null && _mediaPlayer.Length > 0 && Math.Abs(_mediaPlayer.Time / 1000.0 - e.NewValue) > 1.0)
+            {
+                _mediaPlayer.Time = (long)(e.NewValue * 1000);
+            }
         }
 
         private void Controls_Unloaded(object sender, RoutedEventArgs e)
         {
+            _timer.Stop();
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
@@ -76,6 +110,7 @@ namespace CMVideo
             {
                 parent.VideoView.MediaPlayer.Stop();
             }
+            _timer.Stop();
         }
 
         void PauseButton_Click(object sender, RoutedEventArgs e)
@@ -91,10 +126,7 @@ namespace CMVideo
                 PauseButton.Background = Brushes.Green;
             }
         }
-        /**
-         *
-         *@param sender Blue
-         */
+
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             if (!parent.VideoView.MediaPlayer.IsPlaying)
@@ -102,6 +134,8 @@ namespace CMVideo
                 using (var media = new Media(_libVLC, new Uri(file_path)))
                     parent.VideoView.MediaPlayer.Play(media);
             }
-           }
+            _timer.Start();
+        }
+
     }
 }
