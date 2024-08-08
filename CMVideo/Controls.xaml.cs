@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,7 +65,17 @@ namespace CMVideo
 
         private void MediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
         {
-            Dispatcher.Invoke(() => videoSlider.Value = e.Time / 1000.0);
+            Dispatcher.Invoke(() =>
+            {
+                videoSlider.Value = e.Time / 1000.0;
+            });
+
+            Dispatcher.Invoke(() =>Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.Time)));
+        }
+
+        private void Timestamp_Click(object sender, RoutedEventArgs e, MediaPlayerTimeChangedEventArgs m)
+        {
+
         }
 
         private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -133,20 +144,18 @@ namespace CMVideo
             }
             _timer.Stop();
         }
-        
+
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-        if(file_path == null || file_path == "")
+        if(string.IsNullOrEmpty(file_path))
            {
                 file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
-            }
-        if (!parent.VideoView.MediaPlayer.IsPlaying)
-        {
-            using (var media = new Media(_libVLC, new Uri(file_path)))
-            parent.VideoView.MediaPlayer.Play(media);
-        }
+           }
+        using (var media = new Media(_libVLC, new Uri(file_path)))
+        _mediaPlayer.Play(media);
         _timer.Start();
         }
+
         private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             _mediaPlayer.Volume = (int)e.NewValue;

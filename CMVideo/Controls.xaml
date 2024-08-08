@@ -31,8 +31,8 @@
                 Margin="10" 
                 VerticalAlignment="Center" 
                 Height="30"/>
-        <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Center" Width="120"/>
-        <Slider x:Name="Volume" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="395,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="120" Maximum="100" Cursor="None" Background="Black"/>
+        <Slider x:Name="Volume" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="395,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="120" Maximum="100" Cursor="None"/>
+        <TextBox Name="Timestamp" HorizontalAlignment="Left" Margin="39,6,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Row="1"/>
 
     </Grid>
 </UserControl>
