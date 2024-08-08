@@ -32,6 +32,7 @@ namespace CMVideo
 
         public Controls(Player Parent, string file_path)
         {
+            parent = Parent; 
             InitializeComponent();
             Core.Initialize();
             // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
@@ -150,5 +151,23 @@ namespace CMVideo
         {
             _mediaPlayer.Volume = (int)e.NewValue;
         }
+
+        private void Forward10_Click(object sender, RoutedEventArgs e)
+        {
+
+            SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) + TimeSpan.FromSeconds(10));
+
+        }
+
+        private void Rewind10_Click(object sender, RoutedEventArgs e)
+        {
+            SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
+        }
+
+        void SeekTo(TimeSpan seconds)
+        {
+            _mediaPlayer.Time = (long)seconds.TotalMilliseconds;
+        }
+
     }
 }
