@@ -13,11 +13,12 @@
             <!-- Slider -->
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Height="auto" Width="auto">
             <!-- Existing buttons go here -->
             <Button x:Name="PlayButton" Content="Play" Click="PlayButton_Click" Margin="5"/>
             <Button x:Name="PauseButton" Content="Pause" Click="PauseButton_Click" Margin="5"/>
             <Button x:Name= "StopButton" Content="Stop" Click="StopButton_Click" Margin="5"/>
+            <Button x:Name="FullScreen" Content="FullScreen" Click="FullScreen_Click" HorizontalAlignment="Right" Margin="5"></Button>
             <!-- Add more buttons as needed -->
         </StackPanel>
 
@@ -30,5 +31,7 @@
                 VerticalAlignment="Center" 
                 Height="30"/>
         <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="10,10,0,0" Grid.Row="1" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
+        <Slider x:Name="Volume" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="395,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="120" Maximum="100" Cursor="None" Background="Black"/>
+
     </Grid>
 </UserControl>

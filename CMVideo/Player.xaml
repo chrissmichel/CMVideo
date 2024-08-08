@@ -4,14 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CMVideo"
-        xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+        xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp" xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="CMVideo.Player"
         mc:Ignorable="d"
-        Title="Player" Height="600" Width="800">
-    <Grid>
-
-        <fa:IconImage HorizontalAlignment="Left" Height="100" Margin="540,292,0,0" VerticalAlignment="Top" Width="100"/>
-        <uc:VideoView Background="Black" x:Name="VideoView">
-        </uc:VideoView>
-    </Grid>
+        Title="CMVideo" Height="600" Width="800">
+        <vlc:VideoView Background="Black" x:Name="VideoView">
+        </vlc:VideoView>
 </Window>

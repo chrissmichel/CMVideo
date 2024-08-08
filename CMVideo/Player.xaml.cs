@@ -21,7 +21,7 @@ namespace CMVideo
     {
         readonly Controls _controls;
         readonly MainWindow _mainWindow;
-
+        
         public Player(string file_path)
         {
             InitializeComponent();

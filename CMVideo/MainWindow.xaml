@@ -1,5 +1,4 @@
-﻿
-    <Window
+﻿    <Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -26,8 +25,6 @@
             </MenuItem>
         </Menu>
         <Button x:Name="ExampleButton" Content="Play" Height="50" Width="75" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <fa:IconImage HorizontalAlignment="Left" Height="100" Margin="239,265,0,0" VerticalAlignment="Top" Width="100"/>
-
     </Grid>
     <!-- Add more UI components like video display area, controls, etc. here -->
 

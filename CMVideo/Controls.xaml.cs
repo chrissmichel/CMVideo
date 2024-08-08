@@ -14,7 +14,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
-
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
@@ -29,10 +28,10 @@ namespace CMVideo
         MediaPlayer _mediaPlayer;
         string file_path;
         private DispatcherTimer _timer;
+        private bool _isDragingSlidder;
 
         public Controls(Player Parent, string file_path)
         {
-            parent = Parent;
             InitializeComponent();
             Core.Initialize();
             // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
@@ -47,16 +46,14 @@ namespace CMVideo
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(500);
             _timer.Tick += Timer_Tick;
-            _timer.Start();
-           
 
             if(_mediaPlayer != null)
             {
               _mediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
               _mediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
-            
+              _mediaPlayer.Volume = (int)Volume.Value;
             }
-            _timer.Start();
+
         }
 
         private void MediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
@@ -69,21 +66,31 @@ namespace CMVideo
             Dispatcher.Invoke(() => videoSlider.Value = e.Time / 1000.0);
         }
 
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            if ((VideoElement.Source != null) && (VideoElement.NaturalDuration.HasTimeSpan))
-            {
-                Slider1.Minimum = 0;
-                Slider1.Maximum = VideoElement.NaturalDuration.TimeSpan.TotalMilliseconds;
-                Slider1.Value = VideoElement.Position.TotalMilliseconds;
-            }
-        }
-
         private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_mediaPlayer != null && _mediaPlayer.Length > 0 && Math.Abs(_mediaPlayer.Time / 1000.0 - e.NewValue) > 1.0)
             {
                 _mediaPlayer.Time = (long)(e.NewValue * 1000);
+            }
+        }
+
+        private void FullScreen_Click(object sender, RoutedEventArgs e)
+        {
+            _mediaPlayer.ToggleFullscreen();
+            Console.WriteLine(_mediaPlayer.Fullscreen);
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            if (_mediaPlayer != null && _mediaPlayer.Length > 0)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!_isDragingSlidder) // Update slider only if not dragging
+                    {
+                        videoSlider.Value = _mediaPlayer.Time / 1000.0;
+                    }
+                });
             }
         }
 
@@ -99,8 +106,6 @@ namespace CMVideo
         {
             _libVLC = new LibVLC(enableDebugLogs: true);
             _mediaPlayer = new MediaPlayer(_libVLC);
-           
-
             parent.VideoView.MediaPlayer = _mediaPlayer;
         }
 
@@ -125,17 +130,25 @@ namespace CMVideo
                 parent.VideoView.MediaPlayer.Play();
                 PauseButton.Background = Brushes.Green;
             }
+            _timer.Stop();
         }
-
+        
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!parent.VideoView.MediaPlayer.IsPlaying)
-            {
-                using (var media = new Media(_libVLC, new Uri(file_path)))
-                    parent.VideoView.MediaPlayer.Play(media);
+        if(file_path == null || file_path == "")
+           {
+                file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
             }
-            _timer.Start();
+        if (!parent.VideoView.MediaPlayer.IsPlaying)
+        {
+            using (var media = new Media(_libVLC, new Uri(file_path)))
+            parent.VideoView.MediaPlayer.Play(media);
         }
-
+        _timer.Start();
+        }
+        private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            _mediaPlayer.Volume = (int)e.NewValue;
+        }
     }
 }

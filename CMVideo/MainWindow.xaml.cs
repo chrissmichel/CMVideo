@@ -27,7 +27,7 @@ namespace CMVideo
         string file_path = null;
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent ();
             ExampleButton.Click += ExampleButton_Click;
             
         }
@@ -38,8 +38,16 @@ namespace CMVideo
             var window = new Player(file_path);
             window.Show();
         }
+        
+        private void File_Button_Click(object sender, RoutedEventArgs e)
+        {
+            Get_path(sender, e);
+        }
 
-        private string get_path(object sender, RoutedEventArgs e)
+        /**
+         * Gets the path of the file to play. File browser beings in ../User/Videos
+         */
+        private string Get_path(object sender, RoutedEventArgs e)
         {
             string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
@@ -68,9 +76,5 @@ namespace CMVideo
             return "";
         }
 
-        private void File_Button_Click(object sender, RoutedEventArgs e)
-        {
-            get_path(sender, e);
-        }
     }
 }
