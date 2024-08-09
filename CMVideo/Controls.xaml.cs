@@ -69,13 +69,6 @@ namespace CMVideo
             {
                 videoSlider.Value = e.Time / 1000.0;
             });
-
-            Dispatcher.Invoke(() =>Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.Time)));
-        }
-
-        private void Timestamp_Click(object sender, RoutedEventArgs e, MediaPlayerTimeChangedEventArgs m)
-        {
-
         }
 
         private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -100,6 +93,8 @@ namespace CMVideo
                 {
                     if (!_isDragingSlidder) // Update slider only if not dragging
                     {
+                        String s = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
+                        Timestamp.Text = s;
                         videoSlider.Value = _mediaPlayer.Time / 1000.0;
                     }
                 });
