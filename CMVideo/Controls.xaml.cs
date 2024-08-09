@@ -31,6 +31,8 @@ namespace CMVideo
         private DispatcherTimer _timer;
         private bool _isDragingSlidder;
 
+      
+
         public Controls(Player Parent, string file_path)
         {
             parent = Parent; 
@@ -44,7 +46,7 @@ namespace CMVideo
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
             this.file_path = file_path;
-
+            
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(500);
             _timer.Tick += Timer_Tick;
@@ -144,7 +146,7 @@ namespace CMVideo
         {
         if(string.IsNullOrEmpty(file_path))
            {
-                file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
+             file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
            }
         using (var media = new Media(_libVLC, new Uri(file_path)))
         _mediaPlayer.Play(media);
