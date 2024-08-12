@@ -8,3 +8,10 @@
  [] Useable user interface
  [] Pause/Play
 
+
+ -- Bugfixes
+ [] Volume controls need to be adjusted 
+ [] Timestamp needs to be adjusted
+ [] Seeking bugfixes
+
+
