@@ -8,7 +8,7 @@
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp" x:Class="CMVideo.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid Background="black">
+    <Grid>
         <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="Media">
                 <MenuItem x:Name="File_Button" Header="Open" Click="File_Button_Click"/>

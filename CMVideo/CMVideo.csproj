@@ -38,8 +38,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>
-    </ApplicationIcon>
+    <ApplicationIcon>bulbasaur_icon-icons.com_67580.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="FontAwesome.Sharp">
@@ -151,7 +150,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="bulbasaur_icon-icons.com_67580.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\bulbasaur_icon-icons.com_67580.ico" />
   </ItemGroup>

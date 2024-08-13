@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,7 +33,8 @@ namespace CMVideo
         private DispatcherTimer _timer;
         private bool _isDragingSlidder;
 
-      
+ 
+
 
         public Controls(Player Parent, string file_path)
         {
@@ -81,12 +84,6 @@ namespace CMVideo
             }
         }
 
-        private void FullScreen_Click(object sender, RoutedEventArgs e)
-        {
-            _mediaPlayer.ToggleFullscreen();
-            Console.WriteLine(_mediaPlayer.Fullscreen);
-        }
-
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
@@ -115,47 +112,56 @@ namespace CMVideo
         {
             _libVLC = new LibVLC(enableDebugLogs: true);
             _mediaPlayer = new MediaPlayer(_libVLC);
+           
             parent.VideoView.MediaPlayer = _mediaPlayer;
+            _mediaPlayer.Volume = (int)Volume.Value;
         }
 
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            if (parent.VideoView.MediaPlayer.IsPlaying)
+            if (_mediaPlayer.IsPlaying)
             {
-                parent.VideoView.MediaPlayer.Stop();
+           
+                _mediaPlayer.Stop();
             }
             _timer.Stop();
         }
 
         void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            if(parent.VideoView.MediaPlayer.IsPlaying)
-            {
-                parent.VideoView.MediaPlayer.Pause();
-                PauseButton.Background = Brushes.Crimson;
-            }
-            else
-            {
-                parent.VideoView.MediaPlayer.Play();
-                PauseButton.Background = Brushes.Green;
-            }
-            _timer.Stop();
+            _mediaPlayer.Pause();
+
+ 
+            string packUri = _mediaPlayer.Media.Meta(MetadataType.ArtworkURL);
+
+           
+            BitmapImage bit = new BitmapImage();
+            bit.BeginInit();
+            bit.UriSource = new Uri(packUri, UriKind.Absolute);
+            bit.EndInit();
+            ImageBox.Source = bit;
         }
 
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
         if(string.IsNullOrEmpty(file_path))
-           {
+        { 
              file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
-           }
-        using (var media = new Media(_libVLC, new Uri(file_path)))
+        }
+        var media = new Media(_libVLC, new Uri(file_path));
         _mediaPlayer.Play(media);
+
+
         _timer.Start();
+
         }
 
         private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            _mediaPlayer.Volume = (int)e.NewValue;
+            if(_mediaPlayer != null)
+            {
+                _mediaPlayer.Volume = (int)e.NewValue;
+            }
         }
 
         private void Forward10_Click(object sender, RoutedEventArgs e)

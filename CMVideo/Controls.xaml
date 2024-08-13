@@ -17,12 +17,28 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center" Height="auto" Width="auto">
             <!-- Add more buttons as needed -->
             <!-- Existing buttons go here -->
-            
-            <Button x:Name="Rewind10" Content="-10" Click="Rewind10_Click" HorizontalAlignment="Left" Margin="5"/>
+            <!-- Existing buttons go here -->
+
+            <Button x:Name="Rewind10" Click="Rewind10_Click">
+                <materialDesign:PackIcon Kind="Rewind10" Width="15"/>
+            </Button>
             <Button x:Name="PlayButton" Content="Play" Click="PlayButton_Click" Margin="5"/>
-            <Button x:Name="PauseButton" Content="Pause" Click="PauseButton_Click" Margin="5"/>
+            <Button x:Name="PauseButton" Click="PauseButton_Click" Margin="5">
+                <materialDesign:PackIcon Kind="PauseBox">
+                    <materialDesign:PackIcon.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </materialDesign:PackIcon.LayoutTransform>
+                </materialDesign:PackIcon>
+            </Button>
             <Button x:Name= "StopButton" Content="Stop" Click="StopButton_Click" Margin="5"/>
-            <Button x:Name="Forward10" Content="+10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5"/>
+            <Button x:Name="Forward10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5">
+                <materialDesign:PackIcon Kind="FastForward10" Width="15" />
+            </Button>
         </StackPanel>
 
         <Slider x:Name="videoSlider" 
@@ -33,7 +49,8 @@
                 Margin="10" 
                 VerticalAlignment="Center" 
                 Height="30"/>
-        <Slider x:Name="Volume" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="395,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="120" Maximum="100" Cursor="None"/>
-        <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="39,6,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Grid.Row="1"/>
+        <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="418,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
+        <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="21,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Grid.Row="1"/>
+        <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>
 </UserControl>
