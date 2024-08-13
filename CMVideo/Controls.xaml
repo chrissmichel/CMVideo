@@ -20,7 +20,7 @@
             <!-- Existing buttons go here -->
             <TextBox x:Name="Timestamp" Background="#FF673AB7" HorizontalAlignment="Left" Text="00:00" Height="Auto" Width="Auto" TextWrapping="Wrap" />
 
-            <Button x:Name="Rewind10" Click="Rewind10_Click">
+            <Button x:Name="Rewind10" Click="Rewind10_Click" Margin="5">
                 <materialDesign:PackIcon Kind="Rewind10" Width="15"/>
             </Button>
             <Button x:Name="PlayButton" Click="PlayButton_Click" Margin="5">
@@ -47,13 +47,24 @@
                     </materialDesign:PackIcon.LayoutTransform>
                 </materialDesign:PackIcon>
             </Button>
-            <Button x:Name= "StopButton" Content="Stop" Click="StopButton_Click" Margin="5"/>
+            <Button x:Name= "StopButton" Click="StopButton_Click" Margin="5">
+                <materialDesign:PackIcon Kind="Stop">
+                    <materialDesign:PackIcon.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                            <SkewTransform/>
+                            <RotateTransform/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </materialDesign:PackIcon.LayoutTransform>
+                </materialDesign:PackIcon>
+            </Button>
             <Button x:Name="Forward10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5">
                 <materialDesign:PackIcon Kind="FastForward10" Width="15" />
             </Button>
             <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
         </StackPanel>
-        <Slider x:Name="videoSlider" Minimum="0" Maximum="100" ValueChanged="VideoSlider_ValueChanged" Margin="10" VerticalAlignment="Bottom" Height="auto"/>
+        <Slider x:Name="videoSlider" Minimum="0" Maximum="100" ValueChanged="VideoSlider_ValueChanged" Margin="20" VerticalAlignment="Bottom"/>
 
         <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>

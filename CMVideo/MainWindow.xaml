@@ -9,8 +9,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="Auto" Width="Auto">
-    <Grid>
-        <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch">
+    <Grid Background="#3b444b">
+        <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="#4f5f6b">
             <MenuItem Header="Media">
                 <MenuItem x:Name="File_Button" Header="Open" Click="File_Button_Click"/>
                 <Separator />
@@ -26,6 +26,7 @@
             </MenuItem>
         </Menu>
         <Button x:Name="ExampleButton" Content="Play" Height="Auto" Width="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <materialDesign:DrawerHost Content="DrawerHost" HorizontalAlignment="Left" Margin="272,1468,0,0" VerticalAlignment="Top"/>
     </Grid>
     <!-- Add more UI components like video display area, controls, etc. here -->
 
