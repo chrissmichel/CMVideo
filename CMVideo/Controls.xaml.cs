@@ -56,34 +56,14 @@ namespace CMVideo
 
             if(_mediaPlayer != null)
             {
-              _mediaPlayer.LengthChanged += MediaPlayer_LengthChanged;
-              _mediaPlayer.TimeChanged += MediaPlayer_TimeChanged;
+         
+           
               _mediaPlayer.Volume = (int)Volume.Value;
             }
 
         }
 
-        private void MediaPlayer_LengthChanged(object sender, MediaPlayerLengthChangedEventArgs e)
-        {
-            Dispatcher.Invoke(() => videoSlider.Maximum = e.Length / 1000.0);
-        }
-
-        private void MediaPlayer_TimeChanged(object sender, MediaPlayerTimeChangedEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                videoSlider.Value = e.Time / 1000.0;
-            });
-        }
-
-        private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_mediaPlayer != null && _mediaPlayer.Length > 0 && Math.Abs(_mediaPlayer.Time / 1000.0 - e.NewValue) > 1.0)
-            {
-                _mediaPlayer.Time = (long)(e.NewValue * 1000);
-            }
-        }
-
+ 
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
@@ -92,9 +72,14 @@ namespace CMVideo
                 {
                     if (!_isDragingSlidder) // Update slider only if not dragging
                     {
-                        String s = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
-                        Timestamp.Text = s;
-                        videoSlider.Value = _mediaPlayer.Time / 1000.0;
+                        Console.WriteLine("Media duration = " + _mediaPlayer.Media.Duration);
+                        Console.WriteLine("Media player time = " + _mediaPlayer.Time);
+                        double i = ((double) _mediaPlayer.Time / (double) _mediaPlayer.Media.Duration);
+                        Console.WriteLine(i);
+                        Timestamp.Text  = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
+
+                        videoSlider.Value = i;
+                   
                     }
                 });
             }
@@ -116,7 +101,7 @@ namespace CMVideo
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
         }
-
+   
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
             if (_mediaPlayer.IsPlaying)

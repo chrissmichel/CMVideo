@@ -64,7 +64,7 @@
             </Button>
             <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
         </StackPanel>
-        <Slider x:Name="videoSlider" Minimum="0" Maximum="100" ValueChanged="VideoSlider_ValueChanged" Margin="20" VerticalAlignment="Bottom"/>
+        <Slider x:Name="videoSlider" Margin="20" VerticalAlignment="Bottom" Maximum="1"/>
 
         <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>
