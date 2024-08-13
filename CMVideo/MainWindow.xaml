@@ -6,8 +6,9 @@
         xmlns:local="clr-namespace:CMVideo"
         xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp" x:Class="CMVideo.MainWindow"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="Auto" Width="Auto">
     <Grid>
         <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="Media">
@@ -16,15 +17,15 @@
                 <MenuItem Header="Exit" />
             </MenuItem>
             <MenuItem Header="Playback">
-                <MenuItem Header="Play" Background="Crimson"/>
-                <MenuItem Header="Pause" Background="BlueViolet"/>
-                <MenuItem Header="Stop" Background="DarkCyan" />
+                <MenuItem Header="Play"/>
+                <MenuItem Header="Pause"/>
+                <MenuItem Header="Stop"/>
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="About" />
             </MenuItem>
         </Menu>
-        <Button x:Name="ExampleButton" Content="Play" Height="50" Width="75" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
+        <Button x:Name="ExampleButton" Content="Play" Height="Auto" Width="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
     </Grid>
     <!-- Add more UI components like video display area, controls, etc. here -->
 

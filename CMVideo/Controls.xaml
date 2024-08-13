@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vlc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes" x:Class="CMVideo.Controls"
-             Height="350" Width="525">
+             Height="Auto" Width="Auto">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -22,7 +22,18 @@
             <Button x:Name="Rewind10" Click="Rewind10_Click">
                 <materialDesign:PackIcon Kind="Rewind10" Width="15"/>
             </Button>
-            <Button x:Name="PlayButton" Content="Play" Click="PlayButton_Click" Margin="5"/>
+            <Button x:Name="PlayButton" Click="PlayButton_Click" Margin="5">
+                <materialDesign:PackIcon Kind="PlayBox">
+                <materialDesign:PackIcon.LayoutTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </materialDesign:PackIcon.LayoutTransform>
+                </materialDesign:PackIcon>
+                </Button>
             <Button x:Name="PauseButton" Click="PauseButton_Click" Margin="5">
                 <materialDesign:PackIcon Kind="PauseBox">
                     <materialDesign:PackIcon.LayoutTransform>
@@ -39,17 +50,11 @@
             <Button x:Name="Forward10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5">
                 <materialDesign:PackIcon Kind="FastForward10" Width="15" />
             </Button>
+        
+          <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
         </StackPanel>
+        <Slider x:Name="videoSlider" Minimum="0" Maximum="100" ValueChanged="VideoSlider_ValueChanged" Margin="10" VerticalAlignment="Bottom" Height="auto"/>
 
-        <Slider x:Name="videoSlider" 
-                Grid.Row="2" 
-                Minimum="0" 
-                Maximum="100" 
-                ValueChanged="VideoSlider_ValueChanged" 
-                Margin="10" 
-                VerticalAlignment="Center" 
-                Height="30"/>
-        <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="418,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
         <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="21,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Grid.Row="1"/>
         <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>
