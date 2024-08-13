@@ -18,6 +18,7 @@
             <!-- Add more buttons as needed -->
             <!-- Existing buttons go here -->
             <!-- Existing buttons go here -->
+            <TextBox x:Name="Timestamp" Background="#FF673AB7" HorizontalAlignment="Left" Text="00:00" Height="Auto" Width="Auto" TextWrapping="Wrap" />
 
             <Button x:Name="Rewind10" Click="Rewind10_Click">
                 <materialDesign:PackIcon Kind="Rewind10" Width="15"/>
@@ -50,12 +51,10 @@
             <Button x:Name="Forward10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5">
                 <materialDesign:PackIcon Kind="FastForward10" Width="15" />
             </Button>
-        
-          <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
+            <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
         </StackPanel>
         <Slider x:Name="videoSlider" Minimum="0" Maximum="100" ValueChanged="VideoSlider_ValueChanged" Margin="10" VerticalAlignment="Bottom" Height="auto"/>
 
-        <TextBox x:Name="Timestamp" HorizontalAlignment="Left" Margin="21,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Grid.Row="1"/>
         <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>
 </UserControl>
