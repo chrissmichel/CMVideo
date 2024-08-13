@@ -132,14 +132,14 @@ namespace CMVideo
             _mediaPlayer.Pause();
 
  
-            string packUri = _mediaPlayer.Media.Meta(MetadataType.ArtworkURL);
+           // string packUri = _mediaPlayer.Media.Meta(MetadataType.ArtworkURL);
 
            
-            BitmapImage bit = new BitmapImage();
-            bit.BeginInit();
-            bit.UriSource = new Uri(packUri, UriKind.Absolute);
-            bit.EndInit();
-            ImageBox.Source = bit;
+          //  BitmapImage bit = new BitmapImage();
+            //bit.BeginInit();
+         //   bit.UriSource = new Uri(packUri, UriKind.Absolute);
+           // bit.EndInit();
+        //    ImageBox.Source = bit;
         }
 
         void PlayButton_Click(object sender, RoutedEventArgs e)
