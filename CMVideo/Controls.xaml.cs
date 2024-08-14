@@ -1,87 +1,80 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
 {
-    /// <summary>
-    /// Interaction logic for Controls.xaml
-    /// </summary>
     public partial class Controls : UserControl
     {
         readonly Player parent;
         LibVLC _libVLC;
         MediaPlayer _mediaPlayer;
         string file_path;
-        private DispatcherTimer _timer;
-        private bool _isDragingSlidder;
-
- 
-
+        private readonly DispatcherTimer _timer;
+        private bool _isDraggingSlider;
 
         public Controls(Player Parent, string file_path)
         {
-            parent = Parent; 
+            parent = Parent;
             InitializeComponent();
             Core.Initialize();
-            // we need the VideoView to be fully loaded before setting a MediaPlayer on it.
             Parent.VideoView.Loaded += VideoView_Loaded;
-            // Initialize buttons
             PlayButton.Click += PlayButton_Click;
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
             this.file_path = file_path;
-            
+
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(500);
             _timer.Tick += Timer_Tick;
 
-            if(_mediaPlayer != null)
+            if (_mediaPlayer != null)
             {
-         
-           
-              _mediaPlayer.Volume = (int)Volume.Value;
+                _mediaPlayer.Volume = (int)Volume.Value;
             }
 
+            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
+            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
+            videoSlider.ValueChanged += VideoSlider_ValueChanged;
         }
 
- 
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
             {
                 Dispatcher.Invoke(() =>
                 {
-                    if (!_isDragingSlidder) // Update slider only if not dragging
+                    if (!_isDraggingSlider) // Update slider only if not dragging
                     {
-                        Console.WriteLine("Media duration = " + _mediaPlayer.Media.Duration);
-                        Console.WriteLine("Media player time = " + _mediaPlayer.Time);
-                        double i = ((double) _mediaPlayer.Time / (double) _mediaPlayer.Media.Duration);
-                        Console.WriteLine(i);
-                        Timestamp.Text  = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
-
-                        videoSlider.Value = i;
-                   
+                        videoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
+                        Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
                     }
                 });
+            }
+        }
+
+        private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
+        {
+            _isDraggingSlider = true;
+        }
+
+        private void VideoSlider_DragCompleted(object sender, MouseButtonEventArgs e)
+        {
+            _isDraggingSlider = false;
+            SeekTo(TimeSpan.FromMilliseconds(videoSlider.Value * _mediaPlayer.Length));
+        }
+
+        private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_isDraggingSlider)
+            {
+                Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
             }
         }
 
@@ -97,16 +90,14 @@ namespace CMVideo
         {
             _libVLC = new LibVLC(enableDebugLogs: true);
             _mediaPlayer = new MediaPlayer(_libVLC);
-           
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
         }
-   
+
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
             if (_mediaPlayer.IsPlaying)
             {
-           
                 _mediaPlayer.Stop();
             }
             _timer.Stop();
@@ -115,35 +106,24 @@ namespace CMVideo
         void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             _mediaPlayer.Pause();
-
- 
-           // string packUri = _mediaPlayer.Media.Meta(MetadataType.ArtworkURL);
-
-           
-          //  BitmapImage bit = new BitmapImage();
-            //bit.BeginInit();
-         //   bit.UriSource = new Uri(packUri, UriKind.Absolute);
-           // bit.EndInit();
-        //    ImageBox.Source = bit;
         }
 
         void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-        if(string.IsNullOrEmpty(file_path))
-        { 
-             file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
-        }
-        var media = new Media(_libVLC, new Uri(file_path));
-        _mediaPlayer.Play(media);
+            if (string.IsNullOrEmpty(file_path))
+            {
+                file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
+            }
+            var media = new Media(_libVLC, new Uri(file_path));
+            _mediaPlayer.Play(media);
+  
 
-
-        _timer.Start();
-
+            _timer.Start();
         }
 
         private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if(_mediaPlayer != null)
+            if (_mediaPlayer != null)
             {
                 _mediaPlayer.Volume = (int)e.NewValue;
             }
@@ -151,9 +131,7 @@ namespace CMVideo
 
         private void Forward10_Click(object sender, RoutedEventArgs e)
         {
-
             SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) + TimeSpan.FromSeconds(10));
-
         }
 
         private void Rewind10_Click(object sender, RoutedEventArgs e)
@@ -161,10 +139,9 @@ namespace CMVideo
             SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
         }
 
-        void SeekTo(TimeSpan seconds)
+        void SeekTo(TimeSpan time)
         {
-            _mediaPlayer.Time = (long)seconds.TotalMilliseconds;
+            _mediaPlayer.Time = (long)time.TotalMilliseconds;
         }
-
     }
 }

@@ -62,9 +62,9 @@
             <Button x:Name="Forward10" Click="Forward10_Click" HorizontalAlignment="Left" Margin="5">
                 <materialDesign:PackIcon Kind="FastForward10" Width="15" />
             </Button>
-            <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100"/>
+            <Slider x:Name="Volume" Value="50" ValueChanged="Volume_ValueChanged" HorizontalAlignment="Left" Margin="10,0,0,0" Grid.Row="1" VerticalAlignment="Center" Width="100" Maximum="100" Cursor="Hand"/>
         </StackPanel>
-        <Slider x:Name="videoSlider" Margin="20" VerticalAlignment="Bottom" Maximum="1"/>
+        <Slider x:Name="videoSlider" Margin="20" VerticalAlignment="Bottom" Maximum="1" Cursor="Hand"/>
 
         <Image x:Name="ImageBox" HorizontalAlignment="Left" Height="218" Margin="118,22,0,0" VerticalAlignment="Top" Width="277" RenderTransformOrigin="0.494,0.535"/>
     </Grid>
