@@ -22,3 +22,4 @@
 
  8/13/2024 - Seekbar now moves as a ratio of remaining time of the video works (kinda) for now
  8/14/2024 - Simple implementation for video slider 
+ 8/15/2024 - Timestamp adjusted

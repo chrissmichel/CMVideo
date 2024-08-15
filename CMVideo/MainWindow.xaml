@@ -9,8 +9,8 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         mc:Ignorable="d"
         Title="MainWindow" Height="Auto" Width="Auto">
-    <Grid Background="#3b444b">
-        <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="#4f5f6b">
+    <Grid>
+        <Menu VerticalAlignment="Top"   HorizontalAlignment="Stretch">
             <MenuItem Header="Media">
                 <MenuItem x:Name="File_Button" Header="Open" Click="File_Button_Click"/>
                 <Separator />

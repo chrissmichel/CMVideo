@@ -31,7 +31,7 @@ namespace CMVideo
             this.file_path = file_path;
 
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(500);
+            _timer.Interval = TimeSpan.FromMilliseconds(100);
             _timer.Tick += Timer_Tick;
 
             if (_mediaPlayer != null)
@@ -53,10 +53,10 @@ namespace CMVideo
                     if (!_isDraggingSlider) // Update slider only if not dragging
                     {
                         videoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
-                        Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
                     }
                 });
             }
+            Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
         }
 
         private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
@@ -74,7 +74,7 @@ namespace CMVideo
         {
             if (_isDraggingSlider)
             {
-                Timestamp.Text = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
+                Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
             }
         }
 
@@ -92,6 +92,7 @@ namespace CMVideo
             _mediaPlayer = new MediaPlayer(_libVLC);
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
+
         }
 
         void StopButton_Click(object sender, RoutedEventArgs e)
@@ -117,7 +118,6 @@ namespace CMVideo
             var media = new Media(_libVLC, new Uri(file_path));
             _mediaPlayer.Play(media);
   
-
             _timer.Start();
         }
 
@@ -136,7 +136,15 @@ namespace CMVideo
 
         private void Rewind10_Click(object sender, RoutedEventArgs e)
         {
-            SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
+            if (_mediaPlayer != null )
+            {
+                if (TimeSpan.FromMilliseconds(_mediaPlayer.Time) < TimeSpan.FromSeconds(10))
+                {
+                    SeekTo(TimeSpan.FromSeconds(0));
+                    return;
+                }
+                SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
+            }
         }
 
         void SeekTo(TimeSpan time)
