@@ -58,7 +58,6 @@ namespace CMVideo
             }
         }
 
-
         protected override void OnClosed(EventArgs e)
         {
             VideoView.Dispose();

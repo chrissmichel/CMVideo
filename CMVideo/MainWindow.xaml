@@ -1,20 +1,25 @@
-﻿    <Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CMVideo"
-        xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
-        xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp" x:Class="CMVideo.MainWindow"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="Auto" Width="Auto">
+﻿<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:CMVideo"
+    xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
+    xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    mc:Ignorable="d"
+    x:Class="CMVideo.MainWindow"
+    Title="MainWindow"
+    Height="450"
+    Width="800">
+
     <Grid>
-        <Menu VerticalAlignment="Top"   HorizontalAlignment="Stretch">
+        <!-- Menu Bar -->
+        <Menu VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="Media">
                 <MenuItem x:Name="File_Button" Header="Open" Click="File_Button_Click"/>
                 <Separator />
-                <MenuItem Header="Exit" />
+                <MenuItem Header="Exit"/>
             </MenuItem>
             <MenuItem Header="Playback">
                 <MenuItem Header="Play"/>
@@ -22,12 +27,27 @@
                 <MenuItem Header="Stop"/>
             </MenuItem>
             <MenuItem Header="Help">
-                <MenuItem Header="About" />
+                <MenuItem Header="About"/>
             </MenuItem>
         </Menu>
-        <Button x:Name="ExampleButton" Content="Play" Height="Auto" Width="Auto" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
-        <materialDesign:DrawerHost Content="DrawerHost" HorizontalAlignment="Left" Margin="272,1468,0,0" VerticalAlignment="Top"/>
+
+        <!-- Main Grid Layout -->
+        <Grid Background="White" Margin="0,50,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Add more UI components like video display area, controls, etc. here -->
+            <!-- Video Display Area (placeholder) -->
+            <uc:VideoView Grid.Row="0" x:Name="VideoView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+            <!-- Control Buttons -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
+                <Button x:Name="ExampleButton" Content="Play" VerticalAlignment="Center" Margin="5"/>
+                <Button Content="A" VerticalAlignment="Center" Margin="5"/>
+            </StackPanel>
+        </Grid>
     </Grid>
-    <!-- Add more UI components like video display area, controls, etc. here -->
 
 </Window>

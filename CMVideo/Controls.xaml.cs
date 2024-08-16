@@ -31,7 +31,7 @@ namespace CMVideo
             this.file_path = file_path;
 
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(100);
+            _timer.Interval = TimeSpan.FromMilliseconds(25);
             _timer.Tick += Timer_Tick;
 
             if (_mediaPlayer != null)

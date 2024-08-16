@@ -25,6 +25,8 @@ namespace CMVideo
     public partial class MainWindow : Window
     {
         string file_path = null;
+        string last_path = null;
+     
         public MainWindow()
         {
             InitializeComponent ();
@@ -49,32 +51,60 @@ namespace CMVideo
          */
         private string Get_path(object sender, RoutedEventArgs e)
         {
-            string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
 
-            int index_char_length = 1;
-            char index_char = '\\';
-            int substring_index = userName.IndexOf(index_char) + index_char_length;
-            int length = userName.Length - substring_index;//This will yield a length of 2 since the start index is at 6 and the length is 8.
-            string user = userName.Substring(substring_index, length);
-            OpenFileDialog fd = new OpenFileDialog();
-            fd.DefaultExt = "*.*";
-            fd.InitialDirectory = "C:\\Users\\" + user + "\\Videos";
-            
-            bool? success = fd.ShowDialog();
-
-            if (success == true)
+            if (last_path == null)
             {
-                file_path = fd.FileName;
-                Console.WriteLine("File path is : " + file_path);
-                Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
+                string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+
+                int index_char_length = 1;
+                char index_char = '\\';
+                int substring_index = userName.IndexOf(index_char) + index_char_length;
+                int length = userName.Length - substring_index;//This will yield a length of 2 since the start index is at 6 and the length is 8.
+                string user = userName.Substring(substring_index, length);
+                OpenFileDialog fd = new OpenFileDialog();
+                fd.DefaultExt = "*.*";
+                fd.InitialDirectory = "C:\\Users\\" + user + "\\Videos";
+
+                bool? success = fd.ShowDialog();
+
+                if (success == true)
+                {
+                    file_path = fd.FileName;
+
+                    Console.WriteLine("File path is : " + file_path);
+                    Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
+                    last_path = System.IO.Path.GetFullPath(file_path);
+                }
+                else
+                {
+                    // do nothing
+                }
+
+   
             }
             else
             {
-                // do nothing
-            }
+                OpenFileDialog fd = new OpenFileDialog();
+                fd.DefaultExt = "*.*";
+                fd.InitialDirectory = last_path;
+                bool? success = fd.ShowDialog();
 
+                if (success == true)
+                {
+                    file_path = fd.FileName;
+
+                    Console.WriteLine("File path is : " + file_path);
+                    Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
+                    last_path = System.IO.Path.GetPathRoot(file_path);
+                }
+            }
             return "";
         }
 
+         
+
     }
+      
+
 }
+ 
