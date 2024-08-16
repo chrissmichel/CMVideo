@@ -42,6 +42,7 @@ namespace CMVideo
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
             videoSlider.ValueChanged += VideoSlider_ValueChanged;
+    
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -57,6 +58,16 @@ namespace CMVideo
                 });
             }
             Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
+        }
+
+        public void meme(object senter, EventArgs e)
+        {
+            if (_mediaPlayer.IsPlaying)
+            {
+                _mediaPlayer.Pause();
+            }
+
+            _mediaPlayer.Time += (long)41.67;
         }
 
         private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
@@ -92,8 +103,11 @@ namespace CMVideo
             _mediaPlayer = new MediaPlayer(_libVLC);
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
+            PlayButton_Click(sender, e);
+
 
         }
+
 
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
@@ -104,7 +118,7 @@ namespace CMVideo
             _timer.Stop();
         }
 
-        void PauseButton_Click(object sender, RoutedEventArgs e)
+        public void PauseButton_Click(object sender, RoutedEventArgs e)
         {
             _mediaPlayer.Pause();
         }
@@ -129,12 +143,12 @@ namespace CMVideo
             }
         }
 
-        private void Forward10_Click(object sender, RoutedEventArgs e)
+        public void Forward10_Click(object sender, RoutedEventArgs e)
         {
             SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) + TimeSpan.FromSeconds(10));
         }
 
-        private void Rewind10_Click(object sender, RoutedEventArgs e)
+        public void Rewind10_Click(object sender, RoutedEventArgs e)
         {
             if (_mediaPlayer != null )
             {
@@ -151,5 +165,7 @@ namespace CMVideo
         {
             _mediaPlayer.Time = (long)time.TotalMilliseconds;
         }
+
+      
     }
 }

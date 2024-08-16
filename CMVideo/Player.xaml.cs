@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibVLCSharp.Shared;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,33 @@ namespace CMVideo
             VideoView.Content = _controls;
             VideoView.Content = _mainWindow;
         }
+
+        private void Player_Loaded(object sender, RoutedEventArgs e)
+        {
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPress;
+        }
+
+        private void HandleKeyPress(object sender, KeyEventArgs e)
+        {
+
+            switch (e.Key)
+            {
+                case Key.Space: 
+                    _controls.PauseButton_Click(sender, e);
+                    break;
+                case Key.Left:
+                    _controls.Rewind10_Click(sender, e);
+                    break;
+                case Key.Right:
+                    _controls.Forward10_Click(sender, e);
+                    break;
+                case Key.F:
+                    _controls.meme(sender, e);
+                    break;
+            }
+        }
+
 
         protected override void OnClosed(EventArgs e)
         {
