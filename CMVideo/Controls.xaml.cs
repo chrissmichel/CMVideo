@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WPF;
+using MaterialDesignThemes.Wpf;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
@@ -83,7 +84,22 @@ namespace CMVideo
 
         private void Timer_Tick(object sender, EventArgs e)
         {
+            if (_mediaPlayer.IsPlaying)
+            {
+                PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
+                {
+                    Kind = PackIconKind.PauseBox
+                };
            
+            }
+            else if (!_mediaPlayer.IsPlaying)
+            {
+                PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
+                {
+                    Kind = PackIconKind.PlayBox
+                };
+     
+            }
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
             {
                 Dispatcher.Invoke(() =>
@@ -160,6 +176,8 @@ namespace CMVideo
 
         public void PauseButton_Click(object sender, RoutedEventArgs e)
         {
+
+
             _mediaPlayer.Pause();
         }
 
