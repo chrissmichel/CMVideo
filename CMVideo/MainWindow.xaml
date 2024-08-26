@@ -32,7 +32,7 @@
         </Menu>
 
         <!-- Main Grid Layout -->
-        <Grid Background="White" Margin="0,50,0,0">
+        <Grid Margin="0,50,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
@@ -45,7 +45,7 @@
             <!-- Control Buttons -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
                 <Button x:Name="ExampleButton" Content="Play" VerticalAlignment="Center" Margin="5"/>
-                <Button Content="A" VerticalAlignment="Center" Margin="5"/>
+                <Button x:Name="Multiplay" Click="Multiplay_Click" Content="multi" VerticalAlignment="Center" Margin="5"/>
             </StackPanel>
         </Grid>
     </Grid>

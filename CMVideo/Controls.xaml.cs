@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
+using LibVLCSharp.WPF;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
@@ -14,13 +16,20 @@ namespace CMVideo
         readonly Player parent;
         LibVLC _libVLC;
         MediaPlayer _mediaPlayer;
+        List<string> files;
         string file_path;
+        int filecount;
         private readonly DispatcherTimer _timer;
         private bool _isDraggingSlider;
-
-        public Controls(Player Parent, string file_path)
+        private bool _endReached = false;
+        
+        
+        public Controls(Player Parent, List<string> files)
         {
             parent = Parent;
+            this.files = files;
+            filecount = 0;
+            file_path = files.Count > 0 ? files[0] : null;
             InitializeComponent();
             Core.Initialize();
             Parent.VideoView.Loaded += VideoView_Loaded;
@@ -28,8 +37,10 @@ namespace CMVideo
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
-            this.file_path = file_path;
+            
+             
 
+          
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(25);
             _timer.Tick += Timer_Tick;
@@ -37,16 +48,42 @@ namespace CMVideo
             if (_mediaPlayer != null)
             {
                 _mediaPlayer.Volume = (int)Volume.Value;
-            }
+                _mediaPlayer.EndReached += MediaPlayer_EndReached;
 
+            }
+           
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
             videoSlider.ValueChanged += VideoSlider_ValueChanged;
-    
+
+        }
+
+        private void MediaPlayer_EndReached(object sender, EventArgs e)
+        {
+            Console.WriteLine("EndReached event fired"); // Debug output
+
+            Dispatcher.InvokeAsync(() =>
+            {
+              
+
+                if (filecount < files.Count - 1)
+                {
+                    filecount++;
+                    string nextVideoPath = files[filecount];
+                    var media = new Media(_libVLC, new Uri(nextVideoPath));
+                    _mediaPlayer.Media = media;
+                    _mediaPlayer.Play();
+                }
+                else
+                {
+                    MessageBox.Show("All videos in the playlist have been played.");
+                }
+            });
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
+           
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
             {
                 Dispatcher.Invoke(() =>
@@ -103,8 +140,11 @@ namespace CMVideo
             _mediaPlayer = new MediaPlayer(_libVLC);
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
+            _mediaPlayer.EndReached += MediaPlayer_EndReached;
+     
             PlayButton_Click(sender, e);
-
+            // Subscribe to the EndReached event here
+       
 
         }
 

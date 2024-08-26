@@ -22,20 +22,22 @@ namespace CMVideo
     {
         readonly Controls _controls;
         readonly MainWindow _mainWindow;
-        
-        public Player(string file_path)
+
+
+        public Player(List<string> files)
         {
+          
             InitializeComponent();
 
-            _controls = new Controls(this, file_path);
+            _controls = new Controls(this, files);
             VideoView.Content = _controls;
             VideoView.Content = _mainWindow;
         }
 
         private void Player_Loaded(object sender, RoutedEventArgs e)
         {
-            var window = Window.GetWindow(this);
-            window.KeyDown += HandleKeyPress;
+          var window = Window.GetWindow(this);
+          window.KeyDown += HandleKeyPress;
         }
 
         private void HandleKeyPress(object sender, KeyEventArgs e)

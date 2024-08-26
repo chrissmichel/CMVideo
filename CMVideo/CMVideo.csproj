@@ -41,9 +41,6 @@
     <ApplicationIcon>bulbasaur_icon-icons.com_67580.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FontAwesome.Sharp">
-      <HintPath>..\..\..\..\.nuget\packages\fontawesome.sharp\6.6.0\lib\net472\FontAwesome.Sharp.dll</HintPath>
-    </Reference>
     <Reference Include="LibVLCSharp, Version=3.8.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\LibVLCSharp.3.8.5\lib\net471\LibVLCSharp.dll</HintPath>
     </Reference>
