@@ -34,31 +34,34 @@ namespace CMVideo
         {
             InitializeComponent ();
             ExampleButton.Click += ExampleButton_Click;
-            
         }
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
         {
 
-            //var window = new Player(file_path);
+          //var window = new Player(file_path);
           //  window.Show();
         }
-
-
 
         private void Multiplay_Click(object sender, RoutedEventArgs e)
         {
            var file_names = Get_filenames(sender, e);
-           var window = new Player(file_names);
-            window.Show();
+
+           string files = "";
+           foreach (var str in file_names)
+           {
+             files += str + "\n";
+           }
+           file_display.Text = files;
+            var window = new Player(file_names);
+           window.Show();
         }
 
         private void File_Button_Click(object sender, RoutedEventArgs e)
         {
-          Get_filenames(sender, e);
+         
+            Get_filenames(sender, e);
         }
-
-
 
         /**
          * Get the filenames of the videos you want to play
@@ -74,19 +77,15 @@ namespace CMVideo
                 InitialDirectory = "C:\\Users\\" + userName + "\\Videos"
             };
 
-            
             bool? success = fd.ShowDialog();
 
             if (success == true)
             {
                 file_path = fd.FileName;
-
-              
                 last_path = System.IO.Path.GetFullPath(file_path);
-               
+
                 foreach (string file in fd.FileNames)
                 {
-    
                    filenames.Add(file);
                 }
 
@@ -127,7 +126,6 @@ namespace CMVideo
                     // do nothing
                 }
 
-   
             }
             else
             {

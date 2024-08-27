@@ -23,6 +23,7 @@ namespace CMVideo
         private readonly DispatcherTimer _timer;
         private bool _isDraggingSlider;
         private bool _endReached = false;
+        private bool _repeatOn = false;
         
         
         public Controls(Player Parent, List<string> files)
@@ -34,14 +35,12 @@ namespace CMVideo
             InitializeComponent();
             Core.Initialize();
             Parent.VideoView.Loaded += VideoView_Loaded;
-            PlayButton.Click += PlayButton_Click;
+          
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
-            
-             
-
-          
+            Repeat.Click += Repeat_Click;
+            UpdateRepeatButtonIcon();
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(25);
             _timer.Tick += Timer_Tick;
@@ -56,7 +55,6 @@ namespace CMVideo
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
             videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
             videoSlider.ValueChanged += VideoSlider_ValueChanged;
-
         }
 
         private void MediaPlayer_EndReached(object sender, EventArgs e)
@@ -65,8 +63,13 @@ namespace CMVideo
 
             Dispatcher.InvokeAsync(() =>
             {
-              
+                if (_repeatOn)
+                {
+                    _mediaPlayer.Stop();
+                    _mediaPlayer.Play();
 
+                    return;
+                }
                 if (filecount < files.Count - 1)
                 {
                     filecount++;
@@ -84,22 +87,10 @@ namespace CMVideo
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (_mediaPlayer.IsPlaying)
-            {
-                PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
-                {
-                    Kind = PackIconKind.PauseBox
-                };
-           
-            }
-            else if (!_mediaPlayer.IsPlaying)
-            {
-                PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
-                {
-                    Kind = PackIconKind.PlayBox
-                };
-     
-            }
+            UpdateRepeatButtonIcon();
+
+            UpdatePlayButtonIcon();
+
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
             {
                 Dispatcher.Invoke(() =>
@@ -148,6 +139,7 @@ namespace CMVideo
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
+            files.Clear();
         }
 
         private void VideoView_Loaded(object sender, RoutedEventArgs e)
@@ -157,13 +149,9 @@ namespace CMVideo
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
             _mediaPlayer.EndReached += MediaPlayer_EndReached;
-     
+
             PlayButton_Click(sender, e);
-            // Subscribe to the EndReached event here
-       
-
         }
-
 
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
@@ -176,8 +164,6 @@ namespace CMVideo
 
         public void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-
-
             _mediaPlayer.Pause();
         }
 
@@ -224,6 +210,28 @@ namespace CMVideo
             _mediaPlayer.Time = (long)time.TotalMilliseconds;
         }
 
-      
+        private void Repeat_Click(object sender, RoutedEventArgs e)
+        {
+            _repeatOn = !_repeatOn;
+         
+            UpdateRepeatButtonIcon();
+        }
+
+        private void UpdatePlayButtonIcon()
+        {
+            PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
+            {
+
+                Kind = _mediaPlayer.IsPlaying ? PackIconKind.PlayBox : PackIconKind.PauseBox
+            };
+        }
+
+        private void UpdateRepeatButtonIcon()
+        {
+            Repeat.Content = new MaterialDesignThemes.Wpf.PackIcon
+            {
+                Kind = _repeatOn ? PackIconKind.RepeatOnce : PackIconKind.RepeatOff
+            };
+        }
     }
 }
