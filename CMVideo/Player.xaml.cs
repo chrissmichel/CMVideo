@@ -54,9 +54,6 @@ namespace CMVideo
                 case Key.Right:
                     _controls.Forward10_Click(sender, e);
                     break;
-                case Key.F:
-                    _controls.meme(sender, e);
-                    break;
             }
         }
 

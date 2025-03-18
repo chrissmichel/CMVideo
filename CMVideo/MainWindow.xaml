@@ -5,16 +5,90 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:CMVideo"
     xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
-    xmlns:fa="http://schemas.awesome.incremented/wpf/xaml/fontawesome.sharp"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     mc:Ignorable="d"
     x:Class="CMVideo.MainWindow"
     Title="MainWindow"
     Height="450"
     Width="800">
 
+    <Window.Resources>
+        <!-- Standard styles for tab control with left placement -->
+        <Style x:Key="LeftTabControl" TargetType="TabControl">
+            <Setter Property="Background" Value="#323232"/>
+            <Setter Property="TabStripPlacement" Value="Left"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        
+        <!-- Left navigation tab style -->
+        <Style x:Key="NavigationTab" TargetType="TabItem">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#454545"/>
+                                <Setter TargetName="TabBorder" Property="BorderThickness" Value="0,0,0,0"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="#3F3F3F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Standard cards style to replace MaterialDesign:Card -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Floating Action Button Style -->
+        <Style x:Key="FloatingActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Width" Value="56"/>
+            <Setter Property="Height" Value="56"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Ellipse Fill="{TemplateBinding Background}"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <!-- Text Styles -->
+        <Style x:Key="Headline5" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
-        <!-- Menu Bar -->
+        <!-- Menu Bar - Standard WPF Menu -->
         <Menu Foreground="Black" Background="#ffc107" VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <MenuItem Header="Media">
                 <MenuItem x:Name="File_Button" Header="Open" Click="File_Button_Click"/>
@@ -29,147 +103,9 @@
             <MenuItem Header="Help">
                 <MenuItem Header="About"/>
             </MenuItem>
+            <Button Name="ExampleButton" Click="Multiplay_Click"> </Button>
         </Menu>
-
-        <!-- Main Grid Layout -->
-        <Grid Margin="0,50,0,0" Background="#323232">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <materialDesign:Card>
-                <TabControl
-                    materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
-                    SnapsToDevicePixels="True"
-                    Style="{StaticResource MaterialDesignNavigationRailTabControl}"
-                    TabStripPlacement="Left">
-                    <materialDesign:NavigationRailAssist.FloatingContent>
-                        <Button
-                            Background="Black"
-                            Margin="8"
-                            Content="{materialDesign:PackIcon Kind=Plus}"
-                            Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
-                            />
-                    </materialDesign:NavigationRailAssist.FloatingContent>
-                    <TabItem>
-                        <TabItem.Header>
-                            <StackPanel Width="auto" Height="auto">
-                                <materialDesign:PackIcon
-                                    Width="24"
-                                    Height="24"
-                                    HorizontalAlignment="Center"
-                                    Kind="Folder" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    Text="All Files" />
-                            </StackPanel>
-                        </TabItem.Header>
-                        <StackPanel Margin="16">
-                            <TextBlock
-                                Margin="0,0,0,8"
-                                Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                Text="All Files" />
-                            <TextBlock>
-                                <Run x:Name="file_display" Text="tab 1 content. Default look and behaviors." />
-                                <LineBreak />
-                                <LineBreak />
-                                <Run FontStyle="Italic">
-                                   Hello Worlds
-                                </Run>
-                            </TextBlock>
-                        </StackPanel>
-                    </TabItem>
-                    <TabItem>
-                        <TabItem.Header>
-                            <StackPanel Width="auto" Height="auto">
-                                <materialDesign:PackIcon
-                                    Width="24"
-                                    Height="24"
-                                    HorizontalAlignment="Center"
-                                    Kind="ClockOutline" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    Text="Recent" />
-                            </StackPanel>
-                        </TabItem.Header>
-                        <StackPanel Margin="16">
-                            <TextBlock
-                                Margin="0,0,0,8"
-                                Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                Text="Recent" />
-                            <TextBlock>
-                                <Run Text="tab 2 content. Default look and behaviors." />
-                                <LineBreak />
-                                <LineBreak />
-                                <Run FontStyle="Italic">
-                                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                                </Run>
-                            </TextBlock>
-                        </StackPanel>
-                    </TabItem>
-                    <TabItem>
-                        <TabItem.Header>
-                            <StackPanel Width="auto" Height="auto">
-                                <materialDesign:PackIcon
-                                    Width="24"
-                                    Height="24"
-                                    HorizontalAlignment="Center"
-                                    Kind="Images" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    Text="Photos" />
-                            </StackPanel>
-                        </TabItem.Header>
-                        <StackPanel Margin="16">
-                            <TextBlock
-                                Margin="0,0,0,8"
-                                Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                Text="Photos" />
-                            <TextBlock>
-                                <Run Text="tab 3 content. Default look and behaviors." />
-                                <LineBreak />
-                                <LineBreak />
-                                <Run FontStyle="Italic">
-                                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                                </Run>
-                            </TextBlock>
-                        </StackPanel>
-                    </TabItem>
-                    <TabItem>
-                        <TabItem.Header>
-                            <StackPanel Width="auto" Height="auto">
-                                <materialDesign:PackIcon
-                                    Width="24"
-                                    Height="24"
-                                    HorizontalAlignment="Center"
-                                    Kind="MusicBoxMultiple" />
-                                <TextBlock
-                                    HorizontalAlignment="Center"
-                                    Text="Sounds" />
-                            </StackPanel>
-                        </TabItem.Header>
-                        <StackPanel Margin="16">
-                            <TextBlock
-                                Margin="0,0,0,8"
-                                Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                Text="Sounds" />
-                            <TextBlock>
-                                <Run Text="tab 4 content. Default look and behaviors." />
-                                <LineBreak />
-                                <LineBreak />
-                                <Run FontStyle="Italic">
-                                    Neque porro quisquam est qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit...
-                                </Run>
-                            </TextBlock>
-                        </StackPanel>
-                    </TabItem>
-                </TabControl>
-            </materialDesign:Card>
-
-            <!-- Control Buttons -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,10">
-                <Button x:Name="ExampleButton" Click="Multiplay_Click" Content="Play" VerticalAlignment="Center" Margin="5"/>
-            </StackPanel>
+        
         </Grid>
-    </Grid>
+
 </Window>

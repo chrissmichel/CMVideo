@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WPF;
-using MaterialDesignThemes.Wpf;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
@@ -24,8 +24,8 @@ namespace CMVideo
         private bool _isDraggingSlider;
         private bool _endReached = false;
         private bool _repeatOn = false;
-        
-        
+
+
         public Controls(Player Parent, List<string> files)
         {
             parent = Parent;
@@ -35,7 +35,7 @@ namespace CMVideo
             InitializeComponent();
             Core.Initialize();
             Parent.VideoView.Loaded += VideoView_Loaded;
-          
+
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
@@ -51,10 +51,12 @@ namespace CMVideo
                 _mediaPlayer.EndReached += MediaPlayer_EndReached;
 
             }
-           
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
-            videoSlider.ValueChanged += VideoSlider_ValueChanged;
+
+            VideoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent,
+                new MouseButtonEventHandler(VideoSlider_DragStarted), true);
+            VideoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent,
+                new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
+            VideoSlider.ValueChanged += VideoSlider_ValueChanged;
         }
 
         private void MediaPlayer_EndReached(object sender, EventArgs e)
@@ -70,6 +72,7 @@ namespace CMVideo
 
                     return;
                 }
+
                 if (filecount < files.Count - 1)
                 {
                     filecount++;
@@ -97,22 +100,14 @@ namespace CMVideo
                 {
                     if (!_isDraggingSlider) // Update slider only if not dragging
                     {
-                        videoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
+                        VideoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
                     }
                 });
             }
+
             Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
         }
-
-        public void meme(object senter, EventArgs e)
-        {
-            if (_mediaPlayer.IsPlaying)
-            {
-                _mediaPlayer.Pause();
-            }
-
-            _mediaPlayer.Time += (long)41.67;
-        }
+        
 
         private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
         {
@@ -122,14 +117,15 @@ namespace CMVideo
         private void VideoSlider_DragCompleted(object sender, MouseButtonEventArgs e)
         {
             _isDraggingSlider = false;
-            SeekTo(TimeSpan.FromMilliseconds(videoSlider.Value * _mediaPlayer.Length));
+            SeekTo(TimeSpan.FromMilliseconds(VideoSlider.Value * _mediaPlayer.Length));
         }
 
         private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isDraggingSlider)
             {
-                Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
+                Timestamp.Content = string.Format("{0:mm\\:ss}",
+                    TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
             }
         }
 
@@ -159,6 +155,7 @@ namespace CMVideo
             {
                 _mediaPlayer.Stop();
             }
+
             _timer.Stop();
         }
 
@@ -173,9 +170,10 @@ namespace CMVideo
             {
                 file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
             }
+
             var media = new Media(_libVLC, new Uri(file_path));
             _mediaPlayer.Play(media);
-  
+
             _timer.Start();
         }
 
@@ -194,13 +192,14 @@ namespace CMVideo
 
         public void Rewind10_Click(object sender, RoutedEventArgs e)
         {
-            if (_mediaPlayer != null )
+            if (_mediaPlayer != null)
             {
                 if (TimeSpan.FromMilliseconds(_mediaPlayer.Time) < TimeSpan.FromSeconds(10))
                 {
                     SeekTo(TimeSpan.FromSeconds(0));
                     return;
                 }
+
                 SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
             }
         }
@@ -213,25 +212,41 @@ namespace CMVideo
         private void Repeat_Click(object sender, RoutedEventArgs e)
         {
             _repeatOn = !_repeatOn;
-         
+
             UpdateRepeatButtonIcon();
         }
 
+        // In Controls.xaml.cs
         private void UpdatePlayButtonIcon()
         {
-            PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
+            if (_mediaPlayer != null && _mediaPlayer.IsPlaying)
             {
-
-                Kind = _mediaPlayer.IsPlaying ? PackIconKind.PlayBox : PackIconKind.PauseBox
-            };
+                // Set to pause icon
+                PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PauseIcon") };
+            }
+            else
+            {
+                // Set to play icon
+                PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PlayIcon") };
+            }
         }
 
         private void UpdateRepeatButtonIcon()
         {
-            Repeat.Content = new MaterialDesignThemes.Wpf.PackIcon
+            // Create the repeat icon control
+            var repeatIcon = new Control { Template = (ControlTemplate)FindResource("RepeatIcon") };
+
+            // Apply styling based on repeat state
+            if (_repeatOn)
             {
-                Kind = _repeatOn ? PackIconKind.RepeatOnce : PackIconKind.RepeatOff
-            };
+                repeatIcon.Foreground = new SolidColorBrush(Colors.Green);
+            }
+            else
+            {
+                repeatIcon.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+
+            Repeat.Content = repeatIcon;
         }
     }
 }

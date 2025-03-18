@@ -28,7 +28,7 @@ namespace CMVideo
     {
         string file_path = null;
         string last_path = null;
-        readonly List<string> filenames = new List<string>();
+        readonly List<string> _filenames = new List<string>();
 
         public MainWindow()
         {
@@ -45,15 +45,14 @@ namespace CMVideo
 
         private void Multiplay_Click(object sender, RoutedEventArgs e)
         {
-           var file_names = Get_filenames(sender, e);
+           var _filenames = Get_filenames(sender, e);
 
            string files = "";
-           foreach (var str in file_names)
+           foreach (var str in _filenames)
            {
              files += str + "\n";
            }
-           file_display.Text = files;
-            var window = new Player(file_names);
+           var window = new Player(_filenames);
            window.Show();
         }
 
@@ -86,13 +85,13 @@ namespace CMVideo
 
                 foreach (string file in fd.FileNames)
                 {
-                   filenames.Add(file);
+                   _filenames.Add(file);
                 }
 
-                return filenames;
+                return _filenames;
             }
 
-            return filenames;
+            return _filenames;
         }
         
         /**

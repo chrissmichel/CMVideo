@@ -10,5 +10,6 @@
         Title="CMVideo" Height="Auto" Width="Auto"
         Loaded="Player_Loaded">
         <vlc:VideoView Background="Black" x:Name="VideoView">
+                
         </vlc:VideoView>
 </Window>
