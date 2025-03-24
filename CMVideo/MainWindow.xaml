@@ -78,13 +78,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
-        <!-- Text Styles -->
-        <Style x:Key="Headline5" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="24"/>
-            <Setter Property="FontWeight" Value="Medium"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
-        </Style>
+     
     </Window.Resources>
 
     <Grid>
@@ -103,9 +97,7 @@
             <MenuItem Header="Help">
                 <MenuItem Header="About"/>
             </MenuItem>
-            <Button Name="ExampleButton" Click="Multiplay_Click"> </Button>
         </Menu>
-        
         </Grid>
 
 </Window>

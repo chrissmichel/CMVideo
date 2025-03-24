@@ -33,7 +33,7 @@ namespace CMVideo
         public MainWindow()
         {
             InitializeComponent ();
-            ExampleButton.Click += ExampleButton_Click;
+           
         }
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
