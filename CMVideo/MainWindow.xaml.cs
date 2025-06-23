@@ -37,10 +37,10 @@ namespace CMVideo
         }
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
-        {
-
-          //var window = new Player(file_path);
-          //  window.Show();
+        { 
+            File_Button_Click(sender, e);
+            var window = new Player(_filenames); 
+            window.Show();
         }
 
         private void Multiplay_Click(object sender, RoutedEventArgs e)

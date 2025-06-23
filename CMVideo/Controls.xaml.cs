@@ -24,8 +24,7 @@ namespace CMVideo
         private bool _isDraggingSlider;
         private bool _endReached = false;
         private bool _repeatOn = false;
-
-
+        
         public Controls(Player Parent, List<string> files)
         {
             parent = Parent;
@@ -52,9 +51,9 @@ namespace CMVideo
 
             }
 
-            VideoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent,
+            VideoSlider.AddHandler(PreviewMouseLeftButtonDownEvent,
                 new MouseButtonEventHandler(VideoSlider_DragStarted), true);
-            VideoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent,
+            VideoSlider.AddHandler(PreviewMouseLeftButtonUpEvent,
                 new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
             VideoSlider.ValueChanged += VideoSlider_ValueChanged;
         }
@@ -216,24 +215,24 @@ namespace CMVideo
             UpdateRepeatButtonIcon();
         }
 
-        // In Controls.xaml.cs
+        
         private void UpdatePlayButtonIcon()
         {
             if (_mediaPlayer != null && _mediaPlayer.IsPlaying)
             {
-                // Set to pause icon
+                
                 PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PauseIcon") };
             }
             else
             {
-                // Set to play icon
+                
                 PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PlayIcon") };
             }
         }
 
         private void UpdateRepeatButtonIcon()
         {
-            // Create the repeat icon control
+            
             var repeatIcon = new Control { Template = (ControlTemplate)FindResource("RepeatIcon") };
 
             // Apply styling based on repeat state
