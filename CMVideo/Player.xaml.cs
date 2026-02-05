@@ -21,17 +21,23 @@ namespace CMVideo
     public partial class Player : Window
     {
         readonly Controls _controls;
-        readonly MainWindow _mainWindow;
 
+        /// <summary>
+        /// Constructor for playing a single video file
+        /// </summary>
+        public Player(string filePath) : this(new List<string> { filePath })
+        {
+        }
 
+        /// <summary>
+        /// Constructor for playing a playlist of video files
+        /// </summary>
         public Player(List<string> files)
         {
-          
             InitializeComponent();
 
             _controls = new Controls(this, files);
             VideoView.Content = _controls;
-            VideoView.Content = _mainWindow;
         }
 
         private void Player_Loaded(object sender, RoutedEventArgs e)

@@ -1,23 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using LibVLCSharp.WPF;
-using Microsoft.Win32;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace CMVideo
 {
@@ -26,150 +15,184 @@ namespace CMVideo
     /// </summary>
     public partial class MainWindow : Window
     {
-        string file_path = null;
-        string last_path = null;
-        readonly List<string> filenames = new List<string>();
+        private ObservableCollection<VideoFileItem> _allVideos;
+        private ObservableCollection<VideoFileItem> _filteredVideos;
+        private string _currentFolderPath;
+
+        // Supported video formats for LibVLC
+        private readonly string[] _supportedVideoExtensions = new[]
+        {
+            ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm",
+            ".m4v", ".mpg", ".mpeg", ".3gp", ".ogv", ".ts", ".m2ts"
+        };
 
         public MainWindow()
         {
-            InitializeComponent ();
-            ExampleButton.Click += ExampleButton_Click;
+            InitializeComponent();
+            _allVideos = new ObservableCollection<VideoFileItem>();
+            _filteredVideos = new ObservableCollection<VideoFileItem>();
+            VideosListView.ItemsSource = _filteredVideos;
         }
 
-        private void ExampleButton_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Open folder button click handler
+        /// </summary>
+        private void OpenFolder_Button_Click(object sender, RoutedEventArgs e)
         {
-
-          //var window = new Player(file_path);
-          //  window.Show();
-        }
-
-        private void Multiplay_Click(object sender, RoutedEventArgs e)
-        {
-           var file_names = Get_filenames(sender, e);
-
-           string files = "";
-           foreach (var str in file_names)
-           {
-             files += str + "\n";
-           }
-           file_display.Text = files;
-            var window = new Player(file_names);
-           window.Show();
-        }
-
-        private void File_Button_Click(object sender, RoutedEventArgs e)
-        {
-         
-            Get_filenames(sender, e);
-        }
-
-        /**
-         * Get the filenames of the videos you want to play
-         */
-        private List<string> Get_filenames(object sender, RoutedEventArgs e)
-        {
-            string userName = Get_Username();
-
-            OpenFileDialog fd = new OpenFileDialog
+            using (var folderDialog = new FolderBrowserDialog())
             {
-                Multiselect = true,
-                DefaultExt = "*.*",
-                InitialDirectory = "C:\\Users\\" + userName + "\\Videos"
-            };
+                folderDialog.Description = "Select a folder containing video files";
+                folderDialog.ShowNewFolderButton = false;
 
-            bool? success = fd.ShowDialog();
-
-            if (success == true)
-            {
-                file_path = fd.FileName;
-                last_path = System.IO.Path.GetFullPath(file_path);
-
-                foreach (string file in fd.FileNames)
+                // Set initial directory to user's Videos folder
+                string userName = GetUsername();
+                if (!string.IsNullOrEmpty(userName))
                 {
-                   filenames.Add(file);
+                    string videosPath = Path.Combine("C:\\Users", userName, "Videos");
+                    if (Directory.Exists(videosPath))
+                    {
+                        folderDialog.SelectedPath = videosPath;
+                    }
                 }
 
-                return filenames;
-            }
+                DialogResult result = folderDialog.ShowDialog();
 
-            return filenames;
-        }
-        
-        /**
-         * Gets the path of the file to play. File browser beings in ../User/Videos
-         */
-        private string Get_path(object sender, RoutedEventArgs e)
-        {
-
-            if (last_path == null)
-            {
-                string userName = Get_Username();
-                OpenFileDialog fd = new OpenFileDialog
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(folderDialog.SelectedPath))
                 {
-                    Multiselect = true,
-                    DefaultExt = "*.*",
-                    InitialDirectory = "C:\\Users\\" + userName + "\\Videos"
-                };
-
-                bool? success = fd.ShowDialog();
-
-                if (success == true)
-                {
-                    file_path = fd.FileName;
-               
-                    Console.WriteLine("File path is : " + file_path);
-                    Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
-                    last_path = System.IO.Path.GetFullPath(file_path);
-                }
-                else
-                {
-                    // do nothing
-                }
-
-            }
-            else
-            {
-                OpenFileDialog fd = new OpenFileDialog();
-                fd.DefaultExt = "*.*";
-                fd.InitialDirectory = last_path;
-                bool? success = fd.ShowDialog();
-
-                if (success == true)
-                {
-                    file_path = fd.FileName;
-
-                    Console.WriteLine("File path is : " + file_path);
-                    Console.WriteLine("File extension is: " + System.IO.Path.GetExtension(fd.FileName));
-                    last_path = System.IO.Path.GetPathRoot(file_path);
+                    _currentFolderPath = folderDialog.SelectedPath;
+                    LoadVideosFromFolder(_currentFolderPath);
                 }
             }
-            return "";
         }
 
+        /// <summary>
+        /// Load all video files from the selected folder
+        /// </summary>
+        private void LoadVideosFromFolder(string folderPath)
+        {
+            _allVideos.Clear();
+            _filteredVideos.Clear();
 
-        private string Get_Username()
+            try
+            {
+                var videoFiles = Directory.GetFiles(folderPath)
+                    .Where(file => _supportedVideoExtensions.Contains(Path.GetExtension(file).ToLower()))
+                    .OrderBy(file => Path.GetFileName(file));
+
+                foreach (var videoFile in videoFiles)
+                {
+                    var videoItem = new VideoFileItem(videoFile);
+                    _allVideos.Add(videoItem);
+                    _filteredVideos.Add(videoItem);
+                }
+
+                if (_allVideos.Count == 0)
+                {
+                    System.Windows.MessageBox.Show(
+                        "No video files found in the selected folder.",
+                        "No Videos Found",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Error loading videos from folder: {ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Search box text changed event handler
+        /// </summary>
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string searchText = SearchBox.Text.ToLower();
+            _filteredVideos.Clear();
+
+            var filtered = string.IsNullOrWhiteSpace(searchText)
+                ? _allVideos
+                : _allVideos.Where(v => v.FileName.ToLower().Contains(searchText));
+
+            foreach (var video in filtered)
+            {
+                _filteredVideos.Add(video);
+            }
+        }
+
+        /// <summary>
+        /// Play button click handler for individual video items
+        /// </summary>
+        private void PlayVideo_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is System.Windows.Controls.Button button && button.Tag is string filePath)
+            {
+                OpenPlayerWithVideo(filePath);
+            }
+        }
+
+        /// <summary>
+        /// ListView double-click handler
+        /// </summary>
+        private void VideosListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (VideosListView.SelectedItem is VideoFileItem selectedVideo)
+            {
+                OpenPlayerWithVideo(selectedVideo.FilePath);
+            }
+        }
+
+        /// <summary>
+        /// Opens the Player window with the specified video file
+        /// </summary>
+        private void OpenPlayerWithVideo(string filePath)
+        {
+            try
+            {
+                var player = new Player(filePath);
+                player.Show();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Error opening video player: {ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Exit menu item click handler
+        /// </summary>
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        /// <summary>
+        /// Get the current Windows username
+        /// </summary>
+        private string GetUsername()
         {
             try
             {
                 string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
-
-                int index_char_length = 1;
-                char index_char = '\\';
-                int substring_index = userName.IndexOf(index_char) + index_char_length;
-                int length = userName.Length - substring_index;//This will yield a length of 2 since the start index is at 6 and the length is 8.
-                string user = userName.Substring(substring_index, length);
-
-                return user;
+                int slashIndex = userName.IndexOf('\\');
+                if (slashIndex >= 0 && slashIndex < userName.Length - 1)
+                {
+                    return userName.Substring(slashIndex + 1);
+                }
+                return userName;
             }
             catch
             {
-                Console.WriteLine("Unable to get username");
+                return string.Empty;
             }
-            return "";
         }
-
     }
-      
-
 }
  
