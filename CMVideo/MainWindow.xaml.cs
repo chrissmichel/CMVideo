@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -18,6 +19,8 @@ namespace CMVideo
         private ObservableCollection<VideoFileItem> _allVideos;
         private ObservableCollection<VideoFileItem> _filteredVideos;
         private string _currentFolderPath;
+        private ThumbnailService _thumbnailService;
+        private bool _isGridView = true;
 
         // Supported video formats for LibVLC
         private readonly string[] _supportedVideoExtensions = new[]
@@ -26,12 +29,19 @@ namespace CMVideo
             ".m4v", ".mpg", ".mpeg", ".3gp", ".ogv", ".ts", ".m2ts"
         };
 
+        // Supported audio formats
+        private readonly string[] _supportedAudioExtensions = new[]
+        {
+            ".mp3", ".wav", ".flac", ".m4a", ".aac", ".ogg", ".wma", ".opus"
+        };
+
         public MainWindow()
         {
             InitializeComponent();
             _allVideos = new ObservableCollection<VideoFileItem>();
             _filteredVideos = new ObservableCollection<VideoFileItem>();
-            VideosListView.ItemsSource = _filteredVideos;
+            _thumbnailService = new ThumbnailService();
+            VideosItemsControl.ItemsSource = _filteredVideos;
         }
 
         /// <summary>
@@ -66,31 +76,35 @@ namespace CMVideo
         }
 
         /// <summary>
-        /// Load all video files from the selected folder
+        /// Load all media files (video and audio) from the selected folder
         /// </summary>
-        private void LoadVideosFromFolder(string folderPath)
+        private async void LoadVideosFromFolder(string folderPath)
         {
             _allVideos.Clear();
             _filteredVideos.Clear();
 
             try
             {
-                var videoFiles = Directory.GetFiles(folderPath)
-                    .Where(file => _supportedVideoExtensions.Contains(Path.GetExtension(file).ToLower()))
+                var allSupportedExtensions = _supportedVideoExtensions.Concat(_supportedAudioExtensions).ToArray();
+                var mediaFiles = Directory.GetFiles(folderPath)
+                    .Where(file => allSupportedExtensions.Contains(Path.GetExtension(file).ToLower()))
                     .OrderBy(file => Path.GetFileName(file));
 
-                foreach (var videoFile in videoFiles)
+                foreach (var mediaFile in mediaFiles)
                 {
-                    var videoItem = new VideoFileItem(videoFile);
-                    _allVideos.Add(videoItem);
-                    _filteredVideos.Add(videoItem);
+                    var mediaItem = new VideoFileItem(mediaFile);
+                    _allVideos.Add(mediaItem);
+                    _filteredVideos.Add(mediaItem);
+
+                    // Generate thumbnail asynchronously
+                    _ = GenerateThumbnailAsync(mediaItem);
                 }
 
                 if (_allVideos.Count == 0)
                 {
                     System.Windows.MessageBox.Show(
-                        "No video files found in the selected folder.",
-                        "No Videos Found",
+                        "No media files found in the selected folder.",
+                        "No Media Found",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
@@ -98,10 +112,33 @@ namespace CMVideo
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(
-                    $"Error loading videos from folder: {ex.Message}",
+                    $"Error loading media from folder: {ex.Message}",
                     "Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Generate thumbnail for a media item asynchronously
+        /// </summary>
+        private async Task GenerateThumbnailAsync(VideoFileItem mediaItem)
+        {
+            try
+            {
+                var thumbnail = await _thumbnailService.GenerateThumbnailAsync(mediaItem);
+                if (thumbnail != null)
+                {
+                    // Update on UI thread
+                    Dispatcher.Invoke(() =>
+                    {
+                        mediaItem.Thumbnail = thumbnail;
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error generating thumbnail: {ex.Message}");
             }
         }
 
@@ -124,24 +161,29 @@ namespace CMVideo
         }
 
         /// <summary>
-        /// Play button click handler for individual video items
+        /// Video card click handler
         /// </summary>
-        private void PlayVideo_Click(object sender, RoutedEventArgs e)
+        private void VideoCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is System.Windows.Controls.Button button && button.Tag is string filePath)
+            if (sender is FrameworkElement element && element.Tag is string filePath)
             {
                 OpenPlayerWithVideo(filePath);
             }
         }
 
         /// <summary>
-        /// ListView double-click handler
+        /// View toggle button click handler (Grid/List view)
         /// </summary>
-        private void VideosListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void ViewToggle_Click(object sender, RoutedEventArgs e)
         {
-            if (VideosListView.SelectedItem is VideoFileItem selectedVideo)
+            _isGridView = !_isGridView;
+            // TODO: Implement list view template switching if needed
+            // For now, just update the icon
+            if (ViewToggleButton.Content is MaterialDesignThemes.Wpf.PackIcon icon)
             {
-                OpenPlayerWithVideo(selectedVideo.FilePath);
+                icon.Kind = _isGridView
+                    ? MaterialDesignThemes.Wpf.PackIconKind.ViewGrid
+                    : MaterialDesignThemes.Wpf.PackIconKind.ViewList;
             }
         }
 
