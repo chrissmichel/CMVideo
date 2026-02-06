@@ -79,57 +79,22 @@ namespace CMVideo
         }
 
         /// <summary>
-        /// Extract thumbnail from video using FFmpeg
+        /// Extract thumbnail from video using LibVLCSharp
         /// </summary>
         private async Task<string> ExtractVideoThumbnailAsync(string videoPath, string outputPath)
         {
-            return await Task.Run(() =>
+            try
             {
-                try
+                using (var extractor = new LibVLCThumbnailExtractor())
                 {
-                    // Check if ffmpeg.exe exists (you'll need to bundle it or have user install it)
-                    string ffmpegPath = FindFFmpegPath();
-                    if (string.IsNullOrEmpty(ffmpegPath))
-                    {
-                        Debug.WriteLine("FFmpeg not found. Please install FFmpeg or place ffmpeg.exe in the application directory.");
-                        return null;
-                    }
-
-                    // FFmpeg command to extract first frame
-                    // -ss 00:00:01: seek to 1 second (skip potential black frames at start)
-                    // -i: input file
-                    // -frames:v 1: extract only 1 frame
-                    // -vf scale=320:-1: scale to width 320, maintain aspect ratio
-                    string arguments = $"-ss 00:00:01 -i \"{videoPath}\" -frames:v 1 -vf \"scale=320:-1\" -q:v 2 \"{outputPath}\"";
-
-                    ProcessStartInfo startInfo = new ProcessStartInfo
-                    {
-                        FileName = ffmpegPath,
-                        Arguments = arguments,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true,
-                        CreateNoWindow = true,
-                        WindowStyle = ProcessWindowStyle.Hidden
-                    };
-
-                    using (Process process = Process.Start(startInfo))
-                    {
-                        process.WaitForExit(5000); // 5 second timeout
-
-                        if (File.Exists(outputPath))
-                        {
-                            return outputPath;
-                        }
-                    }
+                    return await extractor.ExtractThumbnailAsync(videoPath, outputPath);
                 }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"FFmpeg extraction error: {ex.Message}");
-                }
-
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"LibVLC thumbnail extraction error: {ex.Message}");
                 return null;
-            });
+            }
         }
 
         /// <summary>
@@ -209,47 +174,6 @@ namespace CMVideo
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error finding folder album art: {ex.Message}");
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Find FFmpeg executable
-        /// </summary>
-        private string FindFFmpegPath()
-        {
-            // Check in application directory first
-            string appDir = AppDomain.CurrentDomain.BaseDirectory;
-            string localFFmpeg = Path.Combine(appDir, "ffmpeg.exe");
-            if (File.Exists(localFFmpeg))
-            {
-                return localFFmpeg;
-            }
-
-            // Check if ffmpeg is in PATH
-            try
-            {
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = "ffmpeg",
-                    Arguments = "-version",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    CreateNoWindow = true
-                };
-
-                using (Process process = Process.Start(startInfo))
-                {
-                    if (process != null)
-                    {
-                        return "ffmpeg"; // FFmpeg is in PATH
-                    }
-                }
-            }
-            catch
-            {
-                // FFmpeg not in PATH
             }
 
             return null;
