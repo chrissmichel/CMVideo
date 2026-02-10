@@ -24,6 +24,11 @@ namespace CMVideo
         private static readonly uint Pitch;
         private static readonly uint Lines;
 
+        // Shared LibVLC instance — creating one per extraction is very expensive
+        private static readonly Lazy<LibVLC> SharedLibVLC = new Lazy<LibVLC>(
+            () => new LibVLC("--no-audio", "--no-spu"),
+            LazyThreadSafetyMode.ExecutionAndPublication);
+
         static LibVLCThumbnailExtractor()
         {
             // Align dimensions to multiples of 32 for VLC performance
@@ -60,13 +65,10 @@ namespace CMVideo
 
             try
             {
-                // Initialize LibVLC core if not already done
-
-                using (var libvlc = new LibVLC("--no-audio", "--no-spu"))
+                var libvlc = SharedLibVLC.Value;
                 using (var mediaPlayer = new MediaPlayer(libvlc))
                 {
                     var cancellationTokenSource = new CancellationTokenSource();
-                    var thumbnailTask = Task.CompletedTask;
 
                     // Set up event handlers
                     mediaPlayer.Playing += (s, e) =>

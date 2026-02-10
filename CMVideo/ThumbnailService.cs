@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -30,7 +31,7 @@ namespace CMVideo
         /// <summary>
         /// Generate thumbnail for a media file (video or audio)
         /// </summary>
-        public async Task<BitmapImage> GenerateThumbnailAsync(VideoFileItem mediaItem)
+        public async Task<BitmapImage> GenerateThumbnailAsync(VideoFileItem mediaItem, CancellationToken cancellationToken = default)
         {
             if (mediaItem == null || string.IsNullOrEmpty(mediaItem.FilePath))
                 return null;
@@ -38,6 +39,7 @@ namespace CMVideo
             try
             {
                 mediaItem.IsLoadingThumbnail = true;
+                cancellationToken.ThrowIfCancellationRequested();
 
                 // Check if thumbnail already exists in cache
                 string cachedThumbnail = GetCachedThumbnailPath(mediaItem.FilePath);
@@ -46,6 +48,8 @@ namespace CMVideo
                     mediaItem.ThumbnailPath = cachedThumbnail;
                     return await LoadBitmapImageAsync(cachedThumbnail);
                 }
+
+                cancellationToken.ThrowIfCancellationRequested();
 
                 // Generate thumbnail based on media type
                 string thumbnailPath = null;
@@ -59,6 +63,8 @@ namespace CMVideo
                         break;
                 }
 
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!string.IsNullOrEmpty(thumbnailPath) && File.Exists(thumbnailPath))
                 {
                     mediaItem.ThumbnailPath = thumbnailPath;
@@ -66,6 +72,10 @@ namespace CMVideo
                 }
 
                 return null;
+            }
+            catch (OperationCanceledException)
+            {
+                throw; // Propagate cancellation
             }
             catch (Exception ex)
             {

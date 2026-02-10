@@ -17,22 +17,22 @@ namespace CMVideo
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ObservableCollection<VideoFileItem> _allVideos;
-        private ObservableCollection<VideoFileItem> _filteredVideos;
-        private ObservableCollection<VideoFileItem> _currentPageVideos;
+        private readonly ObservableCollection<VideoFileItem> _allVideos;
+        private readonly ObservableCollection<VideoFileItem> _filteredVideos;
+        private readonly ObservableCollection<VideoFileItem> _currentPageVideos;
         private string _currentFolderPath;
-        private ThumbnailService _thumbnailService;
+        private readonly ThumbnailService _thumbnailService;
         private bool _isGridView = true;
 
         // Pagination fields
         private int _currentPage = 1;
         private int _pageSize = 50;
         private int _totalPages = 0;
-        private SemaphoreSlim _thumbnailSemaphore = new SemaphoreSlim(5, 25); // Max 5 concurrent thumbnail operations
+        private readonly SemaphoreSlim _thumbnailSemaphore = new SemaphoreSlim(3, 3); // Max 3 concurrent thumbnail operations
         private CancellationTokenSource _thumbnailCancellationTokenSource;
 
         // Supported video formats for LibVLC
-        private readonly string[] _supportedVideoExtensions = new[]
+        private readonly string[] _supportedVideoExtensions = new []
         {
             ".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm",
             ".m4v", ".mpg", ".mpeg", ".3gp", ".ogv", ".ts", ".m2ts"
@@ -51,7 +51,7 @@ namespace CMVideo
             _filteredVideos = new ObservableCollection<VideoFileItem>();
             _currentPageVideos = new ObservableCollection<VideoFileItem>();
             _thumbnailService = new ThumbnailService();
-            VideosItemsControl.ItemsSource = _currentPageVideos;
+            VideosListView.ItemsSource = _currentPageVideos;
 
             // Hide pagination controls initially
             UpdatePaginationVisibility(false);
@@ -149,12 +149,15 @@ namespace CMVideo
         /// <summary>
         /// Generate thumbnail for a media item asynchronously
         /// </summary>
-        private async Task GenerateThumbnailAsync(VideoFileItem mediaItem)
+        private async Task GenerateThumbnailAsync(VideoFileItem mediaItem, CancellationToken cancellationToken)
         {
             try
             {
-                var thumbnail = await _thumbnailService.GenerateThumbnailAsync(mediaItem);
-                if (thumbnail != null)
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
+                var thumbnail = await _thumbnailService.GenerateThumbnailAsync(mediaItem, cancellationToken);
+                if (thumbnail != null && !cancellationToken.IsCancellationRequested)
                 {
                     // Update on UI thread
                     Dispatcher.Invoke(() =>
@@ -162,16 +165,10 @@ namespace CMVideo
                         mediaItem.Thumbnail = thumbnail;
                     });
                 }
-
-                // Initialize pagination
-                _currentPage = 1;
-                CalculateTotalPages();
-                LoadCurrentPage();
-                UpdatePaginationUI();
-                UpdatePaginationVisibility(true);
-
-                // Load thumbnails for current page only
-                await LoadThumbnailsForCurrentPageAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when page changes
             }
             catch (Exception ex)
             {
@@ -352,13 +349,12 @@ namespace CMVideo
                     if (cancellationToken.IsCancellationRequested)
                         return;
 
-                    // Throttle concurrent thumbnail operations
                     await _thumbnailSemaphore.WaitAsync(cancellationToken);
                     try
                     {
                         if (!cancellationToken.IsCancellationRequested)
                         {
-                            await GenerateThumbnailAsync(mediaItem);
+                            await GenerateThumbnailAsync(mediaItem, cancellationToken);
                         }
                     }
                     finally

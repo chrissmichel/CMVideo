@@ -283,161 +283,181 @@
                                 </Border>
 
                                 <!--  Videos Grid/List View  -->
-                                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
-                                    <ItemsControl HorizontalContentAlignment="Stretch" x:Name="VideosItemsControl">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <materialDesign:Card
-                                                    Cursor="Hand"
-                                                    Height="260"
-                                                    Margin="8"
-                                                    MouseLeftButtonDown="VideoCard_MouseLeftButtonDown"
-                                                    Tag="{Binding FilePath}"
-                                                    Width="200"
-                                                    materialDesign:ElevationAssist.Elevation="Dp2">
-                                                    <materialDesign:Card.Style>
-                                                        <Style BasedOn="{StaticResource {x:Type materialDesign:Card}}" TargetType="materialDesign:Card">
-                                                            <Style.Triggers>
-                                                                <Trigger Property="IsMouseOver" Value="True">
-                                                                    <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp8" />
-                                                                </Trigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </materialDesign:Card.Style>
+                                <ListView
+                                    BorderThickness="0"
+                                    Grid.Row="3"
+                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                    VirtualizingPanel.CacheLength="5,5"
+                                    VirtualizingPanel.CacheLengthUnit="Item"
+                                    VirtualizingPanel.IsVirtualizing="True"
+                                    VirtualizingPanel.VirtualizationMode="Recycling"
+                                    x:Name="VideosListView">
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="ListViewItem">
+                                                        <ContentPresenter />
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <materialDesign:Card
+                                                Cursor="Hand"
+                                                Height="260"
+                                                Margin="8"
+                                                MouseLeftButtonDown="VideoCard_MouseLeftButtonDown"
+                                                Tag="{Binding FilePath}"
+                                                Width="200"
+                                                materialDesign:ElevationAssist.Elevation="Dp2">
+                                                <materialDesign:Card.Style>
+                                                    <Style BasedOn="{StaticResource {x:Type materialDesign:Card}}" TargetType="materialDesign:Card">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp8" />
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </materialDesign:Card.Style>
 
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="160" />
-                                                            <RowDefinition Height="*" />
-                                                        </Grid.RowDefinitions>
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="160" />
+                                                        <RowDefinition Height="*" />
+                                                    </Grid.RowDefinitions>
 
-                                                        <!--  Thumbnail  -->
-                                                        <Grid Background="#2a2a2a" Grid.Row="0">
-                                                            <!--  Thumbnail Image  -->
-                                                            <Image
-                                                                HorizontalAlignment="Center"
-                                                                Source="{Binding Thumbnail}"
-                                                                Stretch="UniformToFill"
-                                                                VerticalAlignment="Center">
-                                                                <Image.Style>
-                                                                    <Style TargetType="Image">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
-                                                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Image.Style>
-                                                            </Image>
+                                                    <!--  Thumbnail  -->
+                                                    <Grid Background="#2a2a2a" Grid.Row="0">
+                                                        <!--  Thumbnail Image  -->
+                                                        <Image
+                                                            HorizontalAlignment="Center"
+                                                            Source="{Binding Thumbnail}"
+                                                            Stretch="UniformToFill"
+                                                            VerticalAlignment="Center">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
 
-                                                            <!--  Loading Spinner  -->
-                                                            <ProgressBar
-                                                                Height="32"
-                                                                IsIndeterminate="True"
-                                                                Value="0"
-                                                                Width="32">
-                                                                <ProgressBar.Style>
-                                                                    <Style BasedOn="{StaticResource MaterialDesignCircularProgressBar}" TargetType="ProgressBar">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsLoadingThumbnail}" Value="True">
-                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </ProgressBar.Style>
-                                                            </ProgressBar>
+                                                        <!--  Loading Spinner  -->
+                                                        <ProgressBar
+                                                            Height="32"
+                                                            IsIndeterminate="True"
+                                                            Value="0"
+                                                            Width="32">
+                                                            <ProgressBar.Style>
+                                                                <Style BasedOn="{StaticResource MaterialDesignCircularProgressBar}" TargetType="ProgressBar">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsLoadingThumbnail}" Value="True">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </ProgressBar.Style>
+                                                        </ProgressBar>
 
-                                                            <!--  Fallback Icon  -->
+                                                        <!--  Fallback Icon  -->
+                                                        <materialDesign:PackIcon
+                                                            Height="64"
+                                                            HorizontalAlignment="Center"
+                                                            Opacity="0.3"
+                                                            VerticalAlignment="Center"
+                                                            Width="64">
+                                                            <materialDesign:PackIcon.Style>
+                                                                <Style TargetType="materialDesign:PackIcon">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Setter Property="Kind" Value="VideoBox" />
+                                                                    <Style.Triggers>
+                                                                        <MultiDataTrigger>
+                                                                            <MultiDataTrigger.Conditions>
+                                                                                <Condition Binding="{Binding Thumbnail}" Value="{x:Null}" />
+                                                                                <Condition Binding="{Binding IsLoadingThumbnail}" Value="False" />
+                                                                            </MultiDataTrigger.Conditions>
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </MultiDataTrigger>
+                                                                        <DataTrigger Binding="{Binding MediaType}" Value="Audio">
+                                                                            <Setter Property="Kind" Value="MusicBox" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </materialDesign:PackIcon.Style>
+                                                        </materialDesign:PackIcon>
+
+                                                        <!--  Play Overlay (on hover)  -->
+                                                        <Grid Background="#80000000" Opacity="0">
+                                                            <Grid.Style>
+                                                                <Style TargetType="Grid">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}" Value="True">
+                                                                            <DataTrigger.EnterActions>
+                                                                                <BeginStoryboard>
+                                                                                    <Storyboard>
+                                                                                        <DoubleAnimation
+                                                                                            Duration="0:0:0.2"
+                                                                                            Storyboard.TargetProperty="Opacity"
+                                                                                            To="1" />
+                                                                                    </Storyboard>
+                                                                                </BeginStoryboard>
+                                                                            </DataTrigger.EnterActions>
+                                                                            <DataTrigger.ExitActions>
+                                                                                <BeginStoryboard>
+                                                                                    <Storyboard>
+                                                                                        <DoubleAnimation
+                                                                                            Duration="0:0:0.2"
+                                                                                            Storyboard.TargetProperty="Opacity"
+                                                                                            To="0" />
+                                                                                    </Storyboard>
+                                                                                </BeginStoryboard>
+                                                                            </DataTrigger.ExitActions>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Grid.Style>
                                                             <materialDesign:PackIcon
-                                                                Height="64"
-                                                                HorizontalAlignment="Center"
-                                                                Opacity="0.3"
-                                                                VerticalAlignment="Center"
-                                                                Width="64">
-                                                                <materialDesign:PackIcon.Style>
-                                                                    <Style TargetType="materialDesign:PackIcon">
-                                                                        <Setter Property="Visibility" Value="Collapsed" />
-                                                                        <Setter Property="Kind" Value="VideoBox" />
-                                                                        <Style.Triggers>
-                                                                            <MultiDataTrigger>
-                                                                                <MultiDataTrigger.Conditions>
-                                                                                    <Condition Binding="{Binding Thumbnail}" Value="{x:Null}" />
-                                                                                    <Condition Binding="{Binding IsLoadingThumbnail}" Value="False" />
-                                                                                </MultiDataTrigger.Conditions>
-                                                                                <Setter Property="Visibility" Value="Visible" />
-                                                                            </MultiDataTrigger>
-                                                                            <DataTrigger Binding="{Binding MediaType}" Value="Audio">
-                                                                                <Setter Property="Kind" Value="MusicBox" />
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </materialDesign:PackIcon.Style>
-                                                            </materialDesign:PackIcon>
-
-                                                            <!--  Play Overlay (on hover)  -->
-                                                            <Grid Background="#80000000" Opacity="0">
-                                                                <Grid.Style>
-                                                                    <Style TargetType="Grid">
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}" Value="True">
-                                                                                <DataTrigger.EnterActions>
-                                                                                    <BeginStoryboard>
-                                                                                        <Storyboard>
-                                                                                            <DoubleAnimation
-                                                                                                Duration="0:0:0.2"
-                                                                                                Storyboard.TargetProperty="Opacity"
-                                                                                                To="1" />
-                                                                                        </Storyboard>
-                                                                                    </BeginStoryboard>
-                                                                                </DataTrigger.EnterActions>
-                                                                                <DataTrigger.ExitActions>
-                                                                                    <BeginStoryboard>
-                                                                                        <Storyboard>
-                                                                                            <DoubleAnimation
-                                                                                                Duration="0:0:0.2"
-                                                                                                Storyboard.TargetProperty="Opacity"
-                                                                                                To="0" />
-                                                                                        </Storyboard>
-                                                                                    </BeginStoryboard>
-                                                                                </DataTrigger.ExitActions>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Grid.Style>
-                                                                <materialDesign:PackIcon
-                                                                    Foreground="#ffc107"
-                                                                    Height="48"
-                                                                    Kind="PlayCircle"
-                                                                    Width="48" />
-                                                            </Grid>
+                                                                Foreground="#ffc107"
+                                                                Height="48"
+                                                                Kind="PlayCircle"
+                                                                Width="48" />
                                                         </Grid>
-
-                                                        <!--  File Info  -->
-                                                        <StackPanel Grid.Row="1" Margin="12,8">
-                                                            <TextBlock
-                                                                FontSize="13"
-                                                                FontWeight="Medium"
-                                                                Text="{Binding FileName}"
-                                                                TextTrimming="CharacterEllipsis"
-                                                                ToolTip="{Binding FileName}" />
-                                                            <TextBlock
-                                                                FontSize="11"
-                                                                Margin="0,4,0,0"
-                                                                Opacity="0.7"
-                                                                Text="{Binding FileSize}" />
-                                                        </StackPanel>
                                                     </Grid>
-                                                </materialDesign:Card>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
+
+                                                    <!--  File Info  -->
+                                                    <StackPanel Grid.Row="1" Margin="12,8">
+                                                        <TextBlock
+                                                            FontSize="13"
+                                                            FontWeight="Medium"
+                                                            Text="{Binding FileName}"
+                                                            TextTrimming="CharacterEllipsis"
+                                                            ToolTip="{Binding FileName}" />
+                                                        <TextBlock
+                                                            FontSize="11"
+                                                            Margin="0,4,0,0"
+                                                            Opacity="0.7"
+                                                            Text="{Binding FileSize}" />
+                                                    </StackPanel>
+                                                </Grid>
+                                            </materialDesign:Card>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
                             </Grid>
                         </TabItem>
 
