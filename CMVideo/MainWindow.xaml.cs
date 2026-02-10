@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,9 +19,17 @@ namespace CMVideo
     {
         private ObservableCollection<VideoFileItem> _allVideos;
         private ObservableCollection<VideoFileItem> _filteredVideos;
+        private ObservableCollection<VideoFileItem> _currentPageVideos;
         private string _currentFolderPath;
         private ThumbnailService _thumbnailService;
         private bool _isGridView = true;
+
+        // Pagination fields
+        private int _currentPage = 1;
+        private int _pageSize = 50;
+        private int _totalPages = 0;
+        private SemaphoreSlim _thumbnailSemaphore = new SemaphoreSlim(5, 25); // Max 5 concurrent thumbnail operations
+        private CancellationTokenSource _thumbnailCancellationTokenSource;
 
         // Supported video formats for LibVLC
         private readonly string[] _supportedVideoExtensions = new[]
@@ -40,8 +49,12 @@ namespace CMVideo
             InitializeComponent();
             _allVideos = new ObservableCollection<VideoFileItem>();
             _filteredVideos = new ObservableCollection<VideoFileItem>();
+            _currentPageVideos = new ObservableCollection<VideoFileItem>();
             _thumbnailService = new ThumbnailService();
-            VideosItemsControl.ItemsSource = _filteredVideos;
+            VideosItemsControl.ItemsSource = _currentPageVideos;
+
+            // Hide pagination controls initially
+            UpdatePaginationVisibility(false);
         }
 
         /// <summary>
@@ -82,6 +95,11 @@ namespace CMVideo
         {
             _allVideos.Clear();
             _filteredVideos.Clear();
+            _currentPageVideos.Clear();
+
+            // Cancel any pending thumbnail operations
+            _thumbnailCancellationTokenSource?.Cancel();
+            _thumbnailCancellationTokenSource = new CancellationTokenSource();
 
             try
             {
@@ -95,9 +113,6 @@ namespace CMVideo
                     var mediaItem = new VideoFileItem(mediaFile);
                     _allVideos.Add(mediaItem);
                     _filteredVideos.Add(mediaItem);
-
-                    // Generate thumbnail asynchronously
-                    _ = GenerateThumbnailAsync(mediaItem);
                 }
 
                 if (_allVideos.Count == 0)
@@ -107,7 +122,19 @@ namespace CMVideo
                         "No Media Found",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
+                    UpdatePaginationVisibility(false);
+                    return;
                 }
+
+                // Initialize pagination
+                _currentPage = 1;
+                CalculateTotalPages();
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                UpdatePaginationVisibility(true);
+
+                // Load thumbnails for current page only
+                await LoadThumbnailsForCurrentPageAsync();
             }
             catch (Exception ex)
             {
@@ -135,6 +162,16 @@ namespace CMVideo
                         mediaItem.Thumbnail = thumbnail;
                     });
                 }
+
+                // Initialize pagination
+                _currentPage = 1;
+                CalculateTotalPages();
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                UpdatePaginationVisibility(true);
+
+                // Load thumbnails for current page only
+                await LoadThumbnailsForCurrentPageAsync();
             }
             catch (Exception ex)
             {
@@ -145,7 +182,7 @@ namespace CMVideo
         /// <summary>
         /// Search box text changed event handler
         /// </summary>
-        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string searchText = SearchBox.Text.ToLower();
             _filteredVideos.Clear();
@@ -157,6 +194,22 @@ namespace CMVideo
             foreach (var video in filtered)
             {
                 _filteredVideos.Add(video);
+            }
+
+            // Reset to page 1 when search changes
+            if (_filteredVideos.Count > 0)
+            {
+                _currentPage = 1;
+                CalculateTotalPages();
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                UpdatePaginationVisibility(true);
+                await LoadThumbnailsForCurrentPageAsync();
+            }
+            else
+            {
+                _currentPageVideos.Clear();
+                UpdatePaginationVisibility(false);
             }
         }
 
@@ -235,6 +288,222 @@ namespace CMVideo
                 return string.Empty;
             }
         }
+
+        #region Pagination Methods
+
+        /// <summary>
+        /// Calculate total pages based on filtered videos and page size
+        /// </summary>
+        private void CalculateTotalPages()
+        {
+            _totalPages = (int)Math.Ceiling((double)_filteredVideos.Count / _pageSize);
+            if (_totalPages == 0) _totalPages = 1;
+        }
+
+        /// <summary>
+        /// Load videos for the current page into the display collection
+        /// </summary>
+        private void LoadCurrentPage()
+        {
+            // Cancel any pending thumbnail operations
+            _thumbnailCancellationTokenSource?.Cancel();
+            _thumbnailCancellationTokenSource = new CancellationTokenSource();
+
+            // Clear thumbnails from previous page to free memory
+            foreach (var item in _currentPageVideos)
+            {
+                item.Thumbnail = null;
+            }
+
+            _currentPageVideos.Clear();
+
+            int startIndex = (_currentPage - 1) * _pageSize;
+            int endIndex = Math.Min(startIndex + _pageSize, _filteredVideos.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                _currentPageVideos.Add(_filteredVideos[i]);
+            }
+
+            // Force garbage collection to free memory from old thumbnails
+            if (_filteredVideos.Count > 100)
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+            }
+        }
+
+        /// <summary>
+        /// Load thumbnails for videos on the current page with throttling
+        /// </summary>
+        private async Task LoadThumbnailsForCurrentPageAsync()
+        {
+            var cancellationToken = _thumbnailCancellationTokenSource.Token;
+            var tasks = new List<Task>();
+
+            foreach (var mediaItem in _currentPageVideos.ToList())
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+
+                tasks.Add(Task.Run(async () =>
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
+
+                    // Throttle concurrent thumbnail operations
+                    await _thumbnailSemaphore.WaitAsync(cancellationToken);
+                    try
+                    {
+                        if (!cancellationToken.IsCancellationRequested)
+                        {
+                            await GenerateThumbnailAsync(mediaItem);
+                        }
+                    }
+                    finally
+                    {
+                        _thumbnailSemaphore.Release();
+                    }
+                }, cancellationToken));
+            }
+
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when page changes
+            }
+        }
+
+        /// <summary>
+        /// Update pagination UI elements
+        /// </summary>
+        private void UpdatePaginationUI()
+        {
+            if (PageInfoTextBlock != null)
+            {
+                PageInfoTextBlock.Text = $"Page {_currentPage} of {_totalPages}";
+            }
+
+            if (TotalItemsTextBlock != null)
+            {
+                TotalItemsTextBlock.Text = $"{_filteredVideos.Count} items";
+            }
+
+            if (FirstPageButton != null)
+            {
+                FirstPageButton.IsEnabled = _currentPage > 1;
+            }
+
+            if (PreviousPageButton != null)
+            {
+                PreviousPageButton.IsEnabled = _currentPage > 1;
+            }
+
+            if (NextPageButton != null)
+            {
+                NextPageButton.IsEnabled = _currentPage < _totalPages;
+            }
+
+            if (LastPageButton != null)
+            {
+                LastPageButton.IsEnabled = _currentPage < _totalPages;
+            }
+        }
+
+        /// <summary>
+        /// Show or hide pagination controls
+        /// </summary>
+        private void UpdatePaginationVisibility(bool visible)
+        {
+            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+
+            if (PaginationToolbar != null)
+            {
+                PaginationToolbar.Visibility = visibility;
+            }
+        }
+
+        /// <summary>
+        /// First page button click handler
+        /// </summary>
+        private async void FirstPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage != 1)
+            {
+                _currentPage = 1;
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                await LoadThumbnailsForCurrentPageAsync();
+            }
+        }
+
+        /// <summary>
+        /// Previous page button click handler
+        /// </summary>
+        private async void PreviousPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage > 1)
+            {
+                _currentPage--;
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                await LoadThumbnailsForCurrentPageAsync();
+            }
+        }
+
+        /// <summary>
+        /// Next page button click handler
+        /// </summary>
+        private async void NextPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage < _totalPages)
+            {
+                _currentPage++;
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                await LoadThumbnailsForCurrentPageAsync();
+            }
+        }
+
+        /// <summary>
+        /// Last page button click handler
+        /// </summary>
+        private async void LastPage_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentPage != _totalPages)
+            {
+                _currentPage = _totalPages;
+                LoadCurrentPage();
+                UpdatePaginationUI();
+                await LoadThumbnailsForCurrentPageAsync();
+            }
+        }
+
+        /// <summary>
+        /// Page size selection changed handler
+        /// </summary>
+        private async void PageSize_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PageSizeComboBox?.SelectedItem is ComboBoxItem selectedItem &&
+                int.TryParse(selectedItem.Content.ToString(), out int newPageSize))
+            {
+                if (newPageSize != _pageSize && _filteredVideos.Count > 0)
+                {
+                    _pageSize = newPageSize;
+                    _currentPage = 1;
+                    CalculateTotalPages();
+                    LoadCurrentPage();
+                    UpdatePaginationUI();
+                    await LoadThumbnailsForCurrentPageAsync();
+                }
+            }
+        }
+
+        #endregion
     }
 }
  

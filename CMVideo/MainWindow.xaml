@@ -170,6 +170,7 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
@@ -191,8 +192,98 @@
                                     <TextBox.InputBindings />
                                 </TextBox>
 
+                                <!--  Pagination Controls  -->
+                                <Border
+                                    Background="{DynamicResource MaterialDesignPaper}"
+                                    BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                    BorderThickness="0,1,0,1"
+                                    Grid.Row="2"
+                                    Margin="0,0,0,16"
+                                    Padding="12,8"
+                                    Visibility="Collapsed"
+                                    x:Name="PaginationToolbar">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <!--  Page Size Selector  -->
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock
+                                                Margin="0,0,8,0"
+                                                Text="Items per page:"
+                                                VerticalAlignment="Center" />
+                                            <ComboBox
+                                                MinWidth="80"
+                                                SelectedIndex="1"
+                                                SelectionChanged="PageSize_SelectionChanged"
+                                                x:Name="PageSizeComboBox">
+                                                <ComboBoxItem Content="25" />
+                                                <ComboBoxItem Content="50" />
+                                                <ComboBoxItem Content="100" />
+                                            </ComboBox>
+                                        </StackPanel>
+
+                                        <!--  Total Items Count  -->
+                                        <TextBlock
+                                            FontWeight="Medium"
+                                            Grid.Column="1"
+                                            HorizontalAlignment="Center"
+                                            Text="0 items"
+                                            VerticalAlignment="Center"
+                                            x:Name="TotalItemsTextBlock" />
+
+                                        <!--  Page Info  -->
+                                        <TextBlock
+                                            FontWeight="Medium"
+                                            Grid.Column="2"
+                                            Margin="0,0,16,0"
+                                            Text="Page 1 of 1"
+                                            VerticalAlignment="Center"
+                                            x:Name="PageInfoTextBlock" />
+
+                                        <!--  Navigation Buttons  -->
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                            <Button
+                                                Click="FirstPage_Click"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="First Page"
+                                                x:Name="FirstPageButton">
+                                                <materialDesign:PackIcon Kind="PageFirst" />
+                                            </Button>
+                                            <Button
+                                                Click="PreviousPage_Click"
+                                                Margin="4,0,0,0"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="Previous Page"
+                                                x:Name="PreviousPageButton">
+                                                <materialDesign:PackIcon Kind="ChevronLeft" />
+                                            </Button>
+                                            <Button
+                                                Click="NextPage_Click"
+                                                Margin="4,0,0,0"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="Next Page"
+                                                x:Name="NextPageButton">
+                                                <materialDesign:PackIcon Kind="ChevronRight" />
+                                            </Button>
+                                            <Button
+                                                Click="LastPage_Click"
+                                                Margin="4,0,0,0"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="Last Page"
+                                                x:Name="LastPageButton">
+                                                <materialDesign:PackIcon Kind="PageLast" />
+                                            </Button>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+
                                 <!--  Videos Grid/List View  -->
-                                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                                <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
                                     <ItemsControl HorizontalContentAlignment="Stretch" x:Name="VideosItemsControl">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
