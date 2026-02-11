@@ -78,10 +78,6 @@ namespace CMVideo
                     _mediaPlayer.Media = media;
                     _mediaPlayer.Play();
                 }
-                else
-                {
-                    MessageBox.Show("All videos in the playlist have been played.");
-                }
             });
         }
 

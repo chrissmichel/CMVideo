@@ -43,6 +43,10 @@ namespace CMVideo
         private void Player_Loaded(object sender, RoutedEventArgs e)
         {
           var window = Window.GetWindow(this);
+          window.Activate();
+          window.Show();
+          window.Focus();
+          window.Topmost = true;
           window.KeyDown += HandleKeyPress;
         }
 

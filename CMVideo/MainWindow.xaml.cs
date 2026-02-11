@@ -321,14 +321,6 @@ namespace CMVideo
             {
                 _currentPageVideos.Add(_filteredVideos[i]);
             }
-
-            // Force garbage collection to free memory from old thumbnails
-            if (_filteredVideos.Count > 100)
-            {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
-            }
         }
 
         /// <summary>

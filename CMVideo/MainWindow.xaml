@@ -1,4 +1,5 @@
-﻿<Window
+﻿
+<Window
     Height="600"
     MinHeight="400"
     MinWidth="600"
@@ -16,487 +17,421 @@
     xmlns:uc="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <materialDesign:DrawerHost IsLeftDrawerOpen="{Binding ElementName=MenuToggleButton, Path=IsChecked}">
-        <materialDesign:DrawerHost.LeftDrawerContent>
-            <DockPanel MinWidth="220">
-                <ToggleButton
-                    DockPanel.Dock="Top"
-                    HorizontalAlignment="Right"
-                    IsChecked="{Binding ElementName=MenuToggleButton, Path=IsChecked, Mode=TwoWay}"
-                    Margin="16"
-                    Style="{StaticResource MaterialDesignHamburgerToggleButton}" />
+    <DockPanel Background="#323232">
+        <!--  Top Bar: Tabs + Actions  -->
+        <materialDesign:ColorZone
+            DockPanel.Dock="Top"
+            Mode="PrimaryMid"
+            Padding="0"
+            materialDesign:ElevationAssist.Elevation="Dp4">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-                <ListBox Margin="0,16,0,16" SelectedIndex="0">
-                    <ListBoxItem>
-                        <StackPanel Margin="16,8" Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="FolderOpen"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Width="24" />
-                            <TextBlock
-                                FontSize="14"
-                                Text="Open Folder"
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <Separator Style="{StaticResource MaterialDesignSeparator}" />
-                    <ListBoxItem>
-                        <StackPanel Margin="16,8" Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="Cog"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Width="24" />
-                            <TextBlock
-                                FontSize="14"
-                                Text="Settings"
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <ListBoxItem>
-                        <StackPanel Margin="16,8" Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="Information"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Width="24" />
-                            <TextBlock
-                                FontSize="14"
-                                Text="About"
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                    </ListBoxItem>
-                    <Separator Style="{StaticResource MaterialDesignSeparator}" />
-                    <ListBoxItem>
-                        <StackPanel Margin="16,8" Orientation="Horizontal">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="ExitToApp"
-                                Margin="0,0,16,0"
-                                VerticalAlignment="Center"
-                                Width="24" />
-                            <TextBlock
-                                FontSize="14"
-                                Text="Exit"
-                                VerticalAlignment="Center" />
-                        </StackPanel>
-                    </ListBoxItem>
-                </ListBox>
-            </DockPanel>
-        </materialDesign:DrawerHost.LeftDrawerContent>
+                <!--  Tab Headers  -->
+                <TabControl
+                    Background="Transparent"
+                    Grid.Column="0"
+                    Style="{StaticResource MaterialDesignFilledTabControl}"
+                    x:Name="MainTabControl">
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon
+                                    Height="20"
+                                    Kind="Video"
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center"
+                                    Width="20" />
+                                <TextBlock Text="Videos" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                    </TabItem>
+                    <TabItem>
+                        <TabItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon
+                                    Height="20"
+                                    Kind="ClockOutline"
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center"
+                                    Width="20" />
+                                <TextBlock Text="Recent" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </TabItem.Header>
+                    </TabItem>
+                </TabControl>
 
-        <DockPanel>
-            <!--  App Bar  -->
-            <materialDesign:ColorZone
-                DockPanel.Dock="Top"
-                Mode="PrimaryMid"
-                Padding="16"
-                materialDesign:ElevationAssist.Elevation="Dp4">
-                <DockPanel>
-                    <ToggleButton
-                        IsChecked="False"
-                        Style="{StaticResource MaterialDesignHamburgerToggleButton}"
-                        VerticalAlignment="Center"
-                        x:Name="MenuToggleButton" />
-
-                    <TextBlock
-                        FontSize="20"
-                        FontWeight="Medium"
-                        HorizontalAlignment="Center"
-                        Text="CMVideo - Media Library"
-                        VerticalAlignment="Center" />
-
-                    <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                        <Button
-                            Click="OpenFolder_Button_Click"
-                            Margin="8,0,0,0"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Open Folder">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="FolderOpen"
-                                Width="24" />
-                        </Button>
-                        <Button
-                            Click="ViewToggle_Click"
-                            Margin="8,0,0,0"
-                            Style="{StaticResource MaterialDesignIconButton}"
-                            ToolTip="Toggle View"
-                            x:Name="ViewToggleButton">
-                            <materialDesign:PackIcon
-                                Height="24"
-                                Kind="ViewGrid"
-                                Width="24" />
-                        </Button>
-                    </StackPanel>
-                </DockPanel>
-            </materialDesign:ColorZone>
-
-            <!--  Main Grid Layout  -->
-            <Grid Background="#323232">
-                <materialDesign:Card Margin="0">
-                    <TabControl
-                        SnapsToDevicePixels="True"
-                        Style="{StaticResource MaterialDesignNavigationRailTabControl}"
-                        TabStripPlacement="Left"
-                        materialDesign:NavigationRailAssist.ShowSelectionBackground="True">
-                        <materialDesign:NavigationRailAssist.FloatingContent>
-                            <Button
-                                Background="#ffc107"
-                                Click="OpenFolder_Button_Click"
-                                Content="{materialDesign:PackIcon Kind=FolderOpen}"
-                                Margin="8"
-                                Style="{StaticResource MaterialDesignFloatingActionSecondaryButton}"
-                                ToolTip="Open Folder" />
-                        </materialDesign:NavigationRailAssist.FloatingContent>
-
-                        <!--  Videos Tab  -->
-                        <TabItem>
-                            <TabItem.Header>
-                                <StackPanel Height="auto" Width="auto">
-                                    <materialDesign:PackIcon
-                                        Height="24"
-                                        HorizontalAlignment="Center"
-                                        Kind="Video"
-                                        Width="24" />
-                                    <TextBlock HorizontalAlignment="Center" Text="Videos" />
-                                </StackPanel>
-                            </TabItem.Header>
-                            <Grid Margin="16">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <!--  Header  -->
-                                <TextBlock
-                                    Grid.Row="0"
-                                    Margin="0,0,0,8"
-                                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                    Text="Video Library" />
-
-                                <!--  Search Box  -->
-                                <TextBox
-                                    Grid.Row="1"
-                                    Margin="0,0,0,16"
-                                    Style="{StaticResource MaterialDesignOutlinedTextBox}"
-                                    TextChanged="SearchBox_TextChanged"
-                                    materialDesign:HintAssist.Hint="Search videos..."
-                                    x:Name="SearchBox">
-                                    <TextBox.InputBindings />
-                                </TextBox>
-
-                                <!--  Pagination Controls  -->
-                                <Border
-                                    Background="{DynamicResource MaterialDesignPaper}"
-                                    BorderBrush="{DynamicResource MaterialDesignDivider}"
-                                    BorderThickness="0,1,0,1"
-                                    Grid.Row="2"
-                                    Margin="0,0,0,16"
-                                    Padding="12,8"
-                                    Visibility="Collapsed"
-                                    x:Name="PaginationToolbar">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <!--  Page Size Selector  -->
-                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                                            <TextBlock
-                                                Margin="0,0,8,0"
-                                                Text="Items per page:"
-                                                VerticalAlignment="Center" />
-                                            <ComboBox
-                                                MinWidth="80"
-                                                SelectedIndex="1"
-                                                SelectionChanged="PageSize_SelectionChanged"
-                                                x:Name="PageSizeComboBox">
-                                                <ComboBoxItem Content="25" />
-                                                <ComboBoxItem Content="50" />
-                                                <ComboBoxItem Content="100" />
-                                            </ComboBox>
-                                        </StackPanel>
-
-                                        <!--  Total Items Count  -->
-                                        <TextBlock
-                                            FontWeight="Medium"
-                                            Grid.Column="1"
-                                            HorizontalAlignment="Center"
-                                            Text="0 items"
-                                            VerticalAlignment="Center"
-                                            x:Name="TotalItemsTextBlock" />
-
-                                        <!--  Page Info  -->
-                                        <TextBlock
-                                            FontWeight="Medium"
-                                            Grid.Column="2"
-                                            Margin="0,0,16,0"
-                                            Text="Page 1 of 1"
-                                            VerticalAlignment="Center"
-                                            x:Name="PageInfoTextBlock" />
-
-                                        <!--  Navigation Buttons  -->
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal">
-                                            <Button
-                                                Click="FirstPage_Click"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                ToolTip="First Page"
-                                                x:Name="FirstPageButton">
-                                                <materialDesign:PackIcon Kind="PageFirst" />
-                                            </Button>
-                                            <Button
-                                                Click="PreviousPage_Click"
-                                                Margin="4,0,0,0"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                ToolTip="Previous Page"
-                                                x:Name="PreviousPageButton">
-                                                <materialDesign:PackIcon Kind="ChevronLeft" />
-                                            </Button>
-                                            <Button
-                                                Click="NextPage_Click"
-                                                Margin="4,0,0,0"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                ToolTip="Next Page"
-                                                x:Name="NextPageButton">
-                                                <materialDesign:PackIcon Kind="ChevronRight" />
-                                            </Button>
-                                            <Button
-                                                Click="LastPage_Click"
-                                                Margin="4,0,0,0"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                ToolTip="Last Page"
-                                                x:Name="LastPageButton">
-                                                <materialDesign:PackIcon Kind="PageLast" />
-                                            </Button>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-
-                                <!--  Videos Grid/List View  -->
-                                <ListView
-                                    BorderThickness="0"
-                                    Grid.Row="3"
-                                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                    VirtualizingPanel.CacheLength="5,5"
-                                    VirtualizingPanel.CacheLengthUnit="Item"
-                                    VirtualizingPanel.IsVirtualizing="True"
-                                    VirtualizingPanel.VirtualizationMode="Recycling"
-                                    x:Name="VideosListView">
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="Padding" Value="0" />
-                                            <Setter Property="Margin" Value="0" />
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="ListViewItem">
-                                                        <ContentPresenter />
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate>
-                                            <materialDesign:Card
-                                                Cursor="Hand"
-                                                Height="260"
-                                                Margin="8"
-                                                MouseLeftButtonDown="VideoCard_MouseLeftButtonDown"
-                                                Tag="{Binding FilePath}"
-                                                Width="200"
-                                                materialDesign:ElevationAssist.Elevation="Dp2">
-                                                <materialDesign:Card.Style>
-                                                    <Style BasedOn="{StaticResource {x:Type materialDesign:Card}}" TargetType="materialDesign:Card">
-                                                        <Style.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp8" />
-                                                            </Trigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </materialDesign:Card.Style>
-
-                                                <Grid>
-                                                    <Grid.RowDefinitions>
-                                                        <RowDefinition Height="160" />
-                                                        <RowDefinition Height="*" />
-                                                    </Grid.RowDefinitions>
-
-                                                    <!--  Thumbnail  -->
-                                                    <Grid Background="#2a2a2a" Grid.Row="0">
-                                                        <!--  Thumbnail Image  -->
-                                                        <Image
-                                                            HorizontalAlignment="Center"
-                                                            Source="{Binding Thumbnail}"
-                                                            Stretch="UniformToFill"
-                                                            VerticalAlignment="Center">
-                                                            <Image.Style>
-                                                                <Style TargetType="Image">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
-                                                                            <Setter Property="Visibility" Value="Collapsed" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Image.Style>
-                                                        </Image>
-
-                                                        <!--  Loading Spinner  -->
-                                                        <ProgressBar
-                                                            Height="32"
-                                                            IsIndeterminate="True"
-                                                            Value="0"
-                                                            Width="32">
-                                                            <ProgressBar.Style>
-                                                                <Style BasedOn="{StaticResource MaterialDesignCircularProgressBar}" TargetType="ProgressBar">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsLoadingThumbnail}" Value="True">
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </ProgressBar.Style>
-                                                        </ProgressBar>
-
-                                                        <!--  Fallback Icon  -->
-                                                        <materialDesign:PackIcon
-                                                            Height="64"
-                                                            HorizontalAlignment="Center"
-                                                            Opacity="0.3"
-                                                            VerticalAlignment="Center"
-                                                            Width="64">
-                                                            <materialDesign:PackIcon.Style>
-                                                                <Style TargetType="materialDesign:PackIcon">
-                                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                                    <Setter Property="Kind" Value="VideoBox" />
-                                                                    <Style.Triggers>
-                                                                        <MultiDataTrigger>
-                                                                            <MultiDataTrigger.Conditions>
-                                                                                <Condition Binding="{Binding Thumbnail}" Value="{x:Null}" />
-                                                                                <Condition Binding="{Binding IsLoadingThumbnail}" Value="False" />
-                                                                            </MultiDataTrigger.Conditions>
-                                                                            <Setter Property="Visibility" Value="Visible" />
-                                                                        </MultiDataTrigger>
-                                                                        <DataTrigger Binding="{Binding MediaType}" Value="Audio">
-                                                                            <Setter Property="Kind" Value="MusicBox" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </materialDesign:PackIcon.Style>
-                                                        </materialDesign:PackIcon>
-
-                                                        <!--  Play Overlay (on hover)  -->
-                                                        <Grid Background="#80000000" Opacity="0">
-                                                            <Grid.Style>
-                                                                <Style TargetType="Grid">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}" Value="True">
-                                                                            <DataTrigger.EnterActions>
-                                                                                <BeginStoryboard>
-                                                                                    <Storyboard>
-                                                                                        <DoubleAnimation
-                                                                                            Duration="0:0:0.2"
-                                                                                            Storyboard.TargetProperty="Opacity"
-                                                                                            To="1" />
-                                                                                    </Storyboard>
-                                                                                </BeginStoryboard>
-                                                                            </DataTrigger.EnterActions>
-                                                                            <DataTrigger.ExitActions>
-                                                                                <BeginStoryboard>
-                                                                                    <Storyboard>
-                                                                                        <DoubleAnimation
-                                                                                            Duration="0:0:0.2"
-                                                                                            Storyboard.TargetProperty="Opacity"
-                                                                                            To="0" />
-                                                                                    </Storyboard>
-                                                                                </BeginStoryboard>
-                                                                            </DataTrigger.ExitActions>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Grid.Style>
-                                                            <materialDesign:PackIcon
-                                                                Foreground="#ffc107"
-                                                                Height="48"
-                                                                Kind="PlayCircle"
-                                                                Width="48" />
-                                                        </Grid>
-                                                    </Grid>
-
-                                                    <!--  File Info  -->
-                                                    <StackPanel Grid.Row="1" Margin="12,8">
-                                                        <TextBlock
-                                                            FontSize="13"
-                                                            FontWeight="Medium"
-                                                            Text="{Binding FileName}"
-                                                            TextTrimming="CharacterEllipsis"
-                                                            ToolTip="{Binding FileName}" />
-                                                        <TextBlock
-                                                            FontSize="11"
-                                                            Margin="0,4,0,0"
-                                                            Opacity="0.7"
-                                                            Text="{Binding FileSize}" />
-                                                    </StackPanel>
-                                                </Grid>
-                                            </materialDesign:Card>
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
-                            </Grid>
-                        </TabItem>
-
-                        <!--  Recent Tab  -->
-                        <TabItem>
-                            <TabItem.Header>
-                                <StackPanel Height="auto" Width="auto">
-                                    <materialDesign:PackIcon
-                                        Height="24"
-                                        HorizontalAlignment="Center"
-                                        Kind="ClockOutline"
-                                        Width="24" />
-                                    <TextBlock HorizontalAlignment="Center" Text="Recent" />
-                                </StackPanel>
-                            </TabItem.Header>
-                            <Grid Margin="16">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-
-                                <TextBlock
-                                    Grid.Row="0"
-                                    Margin="0,0,0,8"
-                                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                                    Text="Recently Played" />
-
-                                <TextBlock
-                                    FontStyle="Italic"
-                                    Grid.Row="1"
-                                    HorizontalAlignment="Center"
-                                    Opacity="0.5"
-                                    Text="Recently played videos will appear here"
-                                    VerticalAlignment="Center" />
-                            </Grid>
-                        </TabItem>
-                    </TabControl>
-                </materialDesign:Card>
+                <!--  Action Buttons  -->
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="8,0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <Button
+                        Click="OpenFolder_Button_Click"
+                        Foreground="White"
+                        Style="{StaticResource MaterialDesignIconButton}"
+                        ToolTip="Open Folder">
+                        <materialDesign:PackIcon
+                            Height="24"
+                            Kind="FolderOpen"
+                            Width="24" />
+                    </Button>
+                    <Button
+                        Click="ViewToggle_Click"
+                        Foreground="White"
+                        Margin="4,0,0,0"
+                        Style="{StaticResource MaterialDesignIconButton}"
+                        ToolTip="Toggle View"
+                        x:Name="ViewToggleButton">
+                        <materialDesign:PackIcon
+                            Height="24"
+                            Kind="ViewGrid"
+                            Width="24" />
+                    </Button>
+                </StackPanel>
             </Grid>
-        </DockPanel>
-    </materialDesign:DrawerHost>
+        </materialDesign:ColorZone>
+
+        <!--  Tab Content Area  -->
+        <Grid>
+            <!--  Videos Content (visible when tab 0 selected)  -->
+            <Grid Margin="16">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Visible" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedIndex, ElementName=MainTabControl}" Value="1">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <!--  Header  -->
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,8"
+                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                    Text="Video Library" />
+
+                <!--  Search Box  -->
+                <TextBox
+                    Grid.Row="1"
+                    Margin="0,0,0,16"
+                    Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                    TextChanged="SearchBox_TextChanged"
+                    materialDesign:HintAssist.Hint="Search videos..."
+                    x:Name="SearchBox">
+                    <TextBox.InputBindings />
+                </TextBox>
+
+                <!--  Pagination Controls  -->
+                <Border
+                    Background="{DynamicResource MaterialDesignPaper}"
+                    BorderBrush="{DynamicResource MaterialDesignDivider}"
+                    BorderThickness="0,1,0,1"
+                    Grid.Row="2"
+                    Margin="0,0,0,16"
+                    Padding="12,8"
+                    Visibility="Collapsed"
+                    x:Name="PaginationToolbar">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!--  Page Size Selector  -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock
+                                Margin="0,0,8,0"
+                                Text="Items per page:"
+                                VerticalAlignment="Center" />
+                            <ComboBox
+                                MinWidth="80"
+                                SelectedIndex="1"
+                                SelectionChanged="PageSize_SelectionChanged"
+                                x:Name="PageSizeComboBox">
+                                <ComboBoxItem Content="25" />
+                                <ComboBoxItem Content="50" />
+                                <ComboBoxItem Content="100" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!--  Total Items Count  -->
+                        <TextBlock
+                            FontWeight="Medium"
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            Text="0 items"
+                            VerticalAlignment="Center"
+                            x:Name="TotalItemsTextBlock" />
+
+                        <!--  Page Info  -->
+                        <TextBlock
+                            FontWeight="Medium"
+                            Grid.Column="2"
+                            Margin="0,0,16,0"
+                            Text="Page 1 of 1"
+                            VerticalAlignment="Center"
+                            x:Name="PageInfoTextBlock" />
+
+                        <!--  Navigation Buttons  -->
+                        <StackPanel Grid.Column="3" Orientation="Horizontal">
+                            <Button
+                                Click="FirstPage_Click"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="First Page"
+                                x:Name="FirstPageButton">
+                                <materialDesign:PackIcon Kind="PageFirst" />
+                            </Button>
+                            <Button
+                                Click="PreviousPage_Click"
+                                Margin="4,0,0,0"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Previous Page"
+                                x:Name="PreviousPageButton">
+                                <materialDesign:PackIcon Kind="ChevronLeft" />
+                            </Button>
+                            <Button
+                                Click="NextPage_Click"
+                                Margin="4,0,0,0"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Next Page"
+                                x:Name="NextPageButton">
+                                <materialDesign:PackIcon Kind="ChevronRight" />
+                            </Button>
+                            <Button
+                                Click="LastPage_Click"
+                                Margin="4,0,0,0"
+                                Style="{StaticResource MaterialDesignIconButton}"
+                                ToolTip="Last Page"
+                                x:Name="LastPageButton">
+                                <materialDesign:PackIcon Kind="PageLast" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!--  Videos Grid/List View  -->
+                <ListView
+                    BorderThickness="0"
+                    Grid.Row="3"
+                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    VirtualizingPanel.CacheLength="5,5"
+                    VirtualizingPanel.CacheLengthUnit="Item"
+                    VirtualizingPanel.IsVirtualizing="True"
+                    VirtualizingPanel.VirtualizationMode="Recycling"
+                    x:Name="VideosListView">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="Margin" Value="0" />
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListViewItem">
+                                        <ContentPresenter />
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <materialDesign:Card
+                                Cursor="Hand"
+                                Height="260"
+                                Margin="8"
+                                MouseLeftButtonDown="VideoCard_MouseLeftButtonDown"
+                                Tag="{Binding FilePath}"
+                                Width="200"
+                                materialDesign:ElevationAssist.Elevation="Dp2">
+                                <materialDesign:Card.Style>
+                                    <Style BasedOn="{StaticResource {x:Type materialDesign:Card}}" TargetType="materialDesign:Card">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="materialDesign:ElevationAssist.Elevation" Value="Dp8" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </materialDesign:Card.Style>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="160" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <!--  Thumbnail  -->
+                                    <Grid Background="#2a2a2a" Grid.Row="0">
+                                        <Image
+                                            HorizontalAlignment="Center"
+                                            Source="{Binding Thumbnail}"
+                                            Stretch="UniformToFill"
+                                            VerticalAlignment="Center">
+                                            <Image.Style>
+                                                <Style TargetType="Image">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+
+                                        <ProgressBar
+                                            Height="32"
+                                            IsIndeterminate="True"
+                                            Value="0"
+                                            Width="32">
+                                            <ProgressBar.Style>
+                                                <Style BasedOn="{StaticResource MaterialDesignCircularProgressBar}" TargetType="ProgressBar">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLoadingThumbnail}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ProgressBar.Style>
+                                        </ProgressBar>
+
+                                        <materialDesign:PackIcon
+                                            Height="64"
+                                            HorizontalAlignment="Center"
+                                            Opacity="0.3"
+                                            VerticalAlignment="Center"
+                                            Width="64">
+                                            <materialDesign:PackIcon.Style>
+                                                <Style TargetType="materialDesign:PackIcon">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Setter Property="Kind" Value="VideoBox" />
+                                                    <Style.Triggers>
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding Thumbnail}" Value="{x:Null}" />
+                                                                <Condition Binding="{Binding IsLoadingThumbnail}" Value="False" />
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </MultiDataTrigger>
+                                                        <DataTrigger Binding="{Binding MediaType}" Value="Audio">
+                                                            <Setter Property="Kind" Value="MusicBox" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </materialDesign:PackIcon.Style>
+                                        </materialDesign:PackIcon>
+
+                                        <Grid Background="#80000000" Opacity="0">
+                                            <Grid.Style>
+                                                <Style TargetType="Grid">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=materialDesign:Card}}" Value="True">
+                                                            <DataTrigger.EnterActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation
+                                                                            Duration="0:0:0.2"
+                                                                            Storyboard.TargetProperty="Opacity"
+                                                                            To="1" />
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </DataTrigger.EnterActions>
+                                                            <DataTrigger.ExitActions>
+                                                                <BeginStoryboard>
+                                                                    <Storyboard>
+                                                                        <DoubleAnimation
+                                                                            Duration="0:0:0.2"
+                                                                            Storyboard.TargetProperty="Opacity"
+                                                                            To="0" />
+                                                                    </Storyboard>
+                                                                </BeginStoryboard>
+                                                            </DataTrigger.ExitActions>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Grid.Style>
+                                            <materialDesign:PackIcon
+                                                Foreground="#ffc107"
+                                                Height="48"
+                                                Kind="PlayCircle"
+                                                Width="48" />
+                                        </Grid>
+                                    </Grid>
+
+                                    <!--  File Info  -->
+                                    <StackPanel Grid.Row="1" Margin="12,8">
+                                        <TextBlock
+                                            FontSize="13"
+                                            FontWeight="Medium"
+                                            Text="{Binding FileName}"
+                                            TextTrimming="CharacterEllipsis"
+                                            ToolTip="{Binding FileName}" />
+                                        <TextBlock
+                                            FontSize="11"
+                                            Margin="0,4,0,0"
+                                            Opacity="0.7"
+                                            Text="{Binding FileSize}" />
+                                    </StackPanel>
+                                </Grid>
+                            </materialDesign:Card>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+
+            <!--  Recent Content (visible when tab 1 selected)  -->
+            <Grid Margin="16">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedIndex, ElementName=MainTabControl}" Value="1">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock
+                    Grid.Row="0"
+                    Margin="0,0,0,8"
+                    Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                    Text="Recently Played" />
+
+                <TextBlock
+                    FontStyle="Italic"
+                    Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    Opacity="0.5"
+                    Text="Recently played videos will appear here"
+                    VerticalAlignment="Center" />
+            </Grid>
+        </Grid>
+    </DockPanel>
 </Window>
