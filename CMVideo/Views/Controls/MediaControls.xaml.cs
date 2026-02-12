@@ -5,18 +5,19 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WPF;
+using CMVideo.ViewModels;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
-namespace CMVideo
+namespace CMVideo.Views.Controls
 {
-    public partial class Controls : UserControl
+    public partial class MediaControls : UserControl
     {
-        private readonly Player _parent;
+        private readonly PlayerWindow _parent;
         private MediaPlayerViewModel _viewModel;
-        private LibVLC _libVLC;
+        private LibVLC _libVlc;
         private MediaPlayer _mediaPlayer;
 
-        public Controls(Player parent, List<string> files)
+        public MediaControls(PlayerWindow parent, List<string> files)
         {
             _parent = parent ?? throw new ArgumentNullException(nameof(parent));
 
@@ -25,7 +26,7 @@ namespace CMVideo
 
             // Setup VideoView loaded event
             _parent.VideoView.Loaded += VideoView_Loaded;
-            Unloaded += Controls_Unloaded;
+            Unloaded += MediaControls_Unloaded;
 
             // Store files for later initialization
             this.Tag = files; // Temporary storage until VideoView loads
@@ -34,8 +35,8 @@ namespace CMVideo
         private void VideoView_Loaded(object sender, RoutedEventArgs e)
         {
             // Initialize LibVLC and MediaPlayer
-            _libVLC = new LibVLC(enableDebugLogs: true);
-            _mediaPlayer = new MediaPlayer(_libVLC);
+            _libVlc = new LibVLC(enableDebugLogs: true);
+            _mediaPlayer = new MediaPlayer(_libVlc);
             _parent.VideoView.MediaPlayer = _mediaPlayer;
 
             // Get the playlist from Tag
@@ -46,7 +47,7 @@ namespace CMVideo
             }
 
             // Initialize ViewModel with the media player
-            _viewModel = new MediaPlayerViewModel(files, _libVLC, _mediaPlayer);
+            _viewModel = new MediaPlayerViewModel(files, _libVlc, _mediaPlayer);
 
             // Set DataContext for bindings
             this.DataContext = _viewModel;
@@ -73,13 +74,13 @@ namespace CMVideo
             _viewModel?.UpdateSliderPreview(e.NewValue);
         }
 
-        private void Controls_Unloaded(object sender, RoutedEventArgs e)
+        private void MediaControls_Unloaded(object sender, RoutedEventArgs e)
         {
             // Clean up resources
             _viewModel?.Dispose();
             _mediaPlayer?.Stop();
             _mediaPlayer?.Dispose();
-            _libVLC?.Dispose();
+            _libVlc?.Dispose();
         }
 
         // Public methods for Player.xaml.cs keyboard shortcuts

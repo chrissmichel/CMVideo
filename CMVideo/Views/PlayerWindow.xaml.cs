@@ -3,15 +3,16 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using CMVideo.Views.Controls;
 
-namespace CMVideo
+namespace CMVideo.Views
 {
     /// <summary>
-    /// Interaction logic for Player.xaml
+    /// Interaction logic for PlayerWindow.xaml
     /// </summary>
-    public partial class Player : Window
+    public partial class PlayerWindow : Window
     {
-        readonly Controls _controls;
+        readonly MediaControls _controls;
 
         // Fullscreen state
         private bool _isFullScreen;
@@ -26,18 +27,18 @@ namespace CMVideo
         /// <summary>
         /// Constructor for playing a single video file
         /// </summary>
-        public Player(string filePath) : this(new List<string> { filePath })
+        public PlayerWindow(string filePath) : this(new List<string> { filePath })
         {
         }
 
         /// <summary>
         /// Constructor for playing a playlist of video files
         /// </summary>
-        public Player(List<string> files)
+        public PlayerWindow(List<string> files)
         {
             InitializeComponent();
 
-            _controls = new Controls(this, files);
+            _controls = new MediaControls(this, files);
             VideoView.Content = _controls;
         }
 

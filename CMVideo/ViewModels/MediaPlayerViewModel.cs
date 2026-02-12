@@ -7,8 +7,9 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using MaterialDesignThemes.Wpf;
+using CMVideo.Commands;
 
-namespace CMVideo
+namespace CMVideo.ViewModels
 {
     /// <summary>
     /// ViewModel for media player controls following MVVM pattern

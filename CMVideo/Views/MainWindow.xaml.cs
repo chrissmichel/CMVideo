@@ -9,8 +9,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
+using CMVideo.Models;
+using CMVideo.Services;
 
-namespace CMVideo
+namespace CMVideo.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -244,7 +246,7 @@ namespace CMVideo
         {
             try
             {
-                var player = new Player(filePath);
+                var player = new PlayerWindow(filePath);
                 player.Show();
             }
             catch (Exception ex)

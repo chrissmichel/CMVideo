@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Input;
 
-namespace CMVideo
+namespace CMVideo.Commands
 {
     /// <summary>
     /// A command implementation for MVVM pattern

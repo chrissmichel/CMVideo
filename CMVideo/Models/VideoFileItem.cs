@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Media.Imaging;
 
-namespace CMVideo
+namespace CMVideo.Models
 {
     public enum MediaType
     {

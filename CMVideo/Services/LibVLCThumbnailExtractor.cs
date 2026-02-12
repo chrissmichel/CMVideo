@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CMVideo
+namespace CMVideo.Services
 {
     /// <summary>
     /// Extracts video thumbnails using LibVLCSharp video callbacks
