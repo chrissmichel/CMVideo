@@ -1,233 +1,101 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WPF;
-using MaterialDesignThemes.Wpf;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
 namespace CMVideo
 {
     public partial class Controls : UserControl
     {
-        readonly Player parent;
-        LibVLC _libVLC;
-        MediaPlayer _mediaPlayer;
-        List<string> files;
-        string file_path;
-        int filecount;
-        private readonly DispatcherTimer _timer;
-        private bool _isDraggingSlider;
-        private bool _endReached = false;
-        private bool _repeatOn = false;
-        
-        
-        public Controls(Player Parent, List<string> files)
+        private readonly Player _parent;
+        private MediaPlayerViewModel _viewModel;
+        private LibVLC _libVLC;
+        private MediaPlayer _mediaPlayer;
+
+        public Controls(Player parent, List<string> files)
         {
-            parent = Parent;
-            this.files = files;
-            filecount = 0;
-            file_path = files.Count > 0 ? files[0] : null;
+            _parent = parent ?? throw new ArgumentNullException(nameof(parent));
+
             InitializeComponent();
             Core.Initialize();
-            Parent.VideoView.Loaded += VideoView_Loaded;
-          
-            StopButton.Click += StopButton_Click;
+
+            // Setup VideoView loaded event
+            _parent.VideoView.Loaded += VideoView_Loaded;
             Unloaded += Controls_Unloaded;
-            PauseButton.Click += PauseButton_Click;
-            Repeat.Click += Repeat_Click;
-            UpdateRepeatButtonIcon();
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMilliseconds(25);
-            _timer.Tick += Timer_Tick;
 
-            if (_mediaPlayer != null)
-            {
-                _mediaPlayer.Volume = (int)Volume.Value;
-                _mediaPlayer.EndReached += MediaPlayer_EndReached;
-
-            }
-           
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
-            videoSlider.ValueChanged += VideoSlider_ValueChanged;
-        }
-
-        private void MediaPlayer_EndReached(object sender, EventArgs e)
-        {
-            Console.WriteLine("EndReached event fired"); // Debug output
-
-            Dispatcher.InvokeAsync(() =>
-            {
-                if (_repeatOn)
-                {
-                    _mediaPlayer.Stop();
-                    _mediaPlayer.Play();
-
-                    return;
-                }
-                if (filecount < files.Count - 1)
-                {
-                    filecount++;
-                    string nextVideoPath = files[filecount];
-                    var media = new Media(_libVLC, new Uri(nextVideoPath));
-                    _mediaPlayer.Media = media;
-                    _mediaPlayer.Play();
-                }
-            });
-        }
-
-        private void Timer_Tick(object sender, EventArgs e)
-        {
-            UpdateRepeatButtonIcon();
-
-            UpdatePlayButtonIcon();
-
-            if (_mediaPlayer != null && _mediaPlayer.Length > 0)
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    if (!_isDraggingSlider) // Update slider only if not dragging
-                    {
-                        videoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
-                    }
-                });
-            }
-            Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
-        }
-
-        public void meme(object senter, EventArgs e)
-        {
-            if (_mediaPlayer.IsPlaying)
-            {
-                _mediaPlayer.Pause();
-            }
-
-            _mediaPlayer.Time += (long)41.67;
-        }
-
-        private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
-        {
-            _isDraggingSlider = true;
-        }
-
-        private void VideoSlider_DragCompleted(object sender, MouseButtonEventArgs e)
-        {
-            _isDraggingSlider = false;
-            SeekTo(TimeSpan.FromMilliseconds(videoSlider.Value * _mediaPlayer.Length));
-        }
-
-        private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isDraggingSlider)
-            {
-                Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
-            }
-        }
-
-        private void Controls_Unloaded(object sender, RoutedEventArgs e)
-        {
-            _timer.Stop();
-            _mediaPlayer.Stop();
-            _mediaPlayer.Dispose();
-            _libVLC.Dispose();
-            files.Clear();
+            // Store files for later initialization
+            this.Tag = files; // Temporary storage until VideoView loads
         }
 
         private void VideoView_Loaded(object sender, RoutedEventArgs e)
         {
+            // Initialize LibVLC and MediaPlayer
             _libVLC = new LibVLC(enableDebugLogs: true);
             _mediaPlayer = new MediaPlayer(_libVLC);
-            parent.VideoView.MediaPlayer = _mediaPlayer;
-            _mediaPlayer.Volume = (int)Volume.Value;
-            _mediaPlayer.EndReached += MediaPlayer_EndReached;
+            _parent.VideoView.MediaPlayer = _mediaPlayer;
 
-            PlayButton_Click(sender, e);
-        }
-
-        void StopButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_mediaPlayer.IsPlaying)
+            // Get the playlist from Tag
+            var files = this.Tag as List<string>;
+            if (files == null || files.Count == 0)
             {
-                _mediaPlayer.Stop();
+                files = new List<string> { "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" };
             }
-            _timer.Stop();
+
+            // Initialize ViewModel with the media player
+            _viewModel = new MediaPlayerViewModel(files, _libVLC, _mediaPlayer);
+
+            // Set DataContext for bindings
+            this.DataContext = _viewModel;
+
+            // Setup slider drag events (can't be bound directly in XAML)
+            VideoSlider.PreviewMouseLeftButtonDown += VideoSlider_PreviewMouseLeftButtonDown;
+            VideoSlider.PreviewMouseLeftButtonUp += VideoSlider_PreviewMouseLeftButtonUp;
+            VideoSlider.ValueChanged += VideoSlider_ValueChanged;
         }
 
+        private void VideoSlider_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _viewModel?.SliderDragStartedCommand.Execute(null);
+        }
+
+        private void VideoSlider_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            _viewModel?.SliderDragCompletedCommand.Execute(null);
+        }
+
+        private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            // Update timestamp preview while dragging
+            _viewModel?.UpdateSliderPreview(e.NewValue);
+        }
+
+        private void Controls_Unloaded(object sender, RoutedEventArgs e)
+        {
+            // Clean up resources
+            _viewModel?.Dispose();
+            _mediaPlayer?.Stop();
+            _mediaPlayer?.Dispose();
+            _libVLC?.Dispose();
+        }
+
+        // Public methods for Player.xaml.cs keyboard shortcuts
         public void PauseButton_Click(object sender, RoutedEventArgs e)
         {
-            _mediaPlayer.Pause();
-        }
-
-        void PlayButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(file_path))
-            {
-                file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
-            }
-            var media = new Media(_libVLC, new Uri(file_path));
-            _mediaPlayer.Play(media);
-  
-            _timer.Start();
-        }
-
-        private void Volume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_mediaPlayer != null)
-            {
-                _mediaPlayer.Volume = (int)e.NewValue;
-            }
-        }
-
-        public void Forward10_Click(object sender, RoutedEventArgs e)
-        {
-            SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) + TimeSpan.FromSeconds(10));
+            _viewModel?.PlayPauseCommand.Execute(null);
         }
 
         public void Rewind10_Click(object sender, RoutedEventArgs e)
         {
-            if (_mediaPlayer != null )
-            {
-                if (TimeSpan.FromMilliseconds(_mediaPlayer.Time) < TimeSpan.FromSeconds(10))
-                {
-                    SeekTo(TimeSpan.FromSeconds(0));
-                    return;
-                }
-                SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
-            }
+            _viewModel?.RewindCommand.Execute(null);
         }
 
-        void SeekTo(TimeSpan time)
+        public void Forward10_Click(object sender, RoutedEventArgs e)
         {
-            _mediaPlayer.Time = (long)time.TotalMilliseconds;
-        }
-
-        private void Repeat_Click(object sender, RoutedEventArgs e)
-        {
-            _repeatOn = !_repeatOn;
-         
-            UpdateRepeatButtonIcon();
-        }
-
-        private void UpdatePlayButtonIcon()
-        {
-            PauseButton.Content = new MaterialDesignThemes.Wpf.PackIcon
-            {
-
-                Kind = _mediaPlayer.IsPlaying ? PackIconKind.PlayBox : PackIconKind.PauseBox
-            };
-        }
-
-        private void UpdateRepeatButtonIcon()
-        {
-            Repeat.Content = new MaterialDesignThemes.Wpf.PackIcon
-            {
-                Kind = _repeatOn ? PackIconKind.RepeatOnce : PackIconKind.RepeatOff
-            };
+            _viewModel?.ForwardCommand.Execute(null);
         }
     }
 }

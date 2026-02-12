@@ -1,17 +1,8 @@
 ﻿using LibVLCSharp.Shared;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace CMVideo
 {
@@ -21,6 +12,16 @@ namespace CMVideo
     public partial class Player : Window
     {
         readonly Controls _controls;
+
+        // Fullscreen state
+        private bool _isFullScreen;
+        private WindowState _previousWindowState;
+        private WindowStyle _previousWindowStyle;
+        private ResizeMode _previousResizeMode;
+        private double _previousTop;
+        private double _previousLeft;
+        private double _previousWidth;
+        private double _previousHeight;
 
         /// <summary>
         /// Constructor for playing a single video file
@@ -42,20 +43,15 @@ namespace CMVideo
 
         private void Player_Loaded(object sender, RoutedEventArgs e)
         {
-          var window = Window.GetWindow(this);
-          window.Activate();
-          window.Show();
-          window.Focus();
-          window.Topmost = true;
-          window.KeyDown += HandleKeyPress;
+            var window = Window.GetWindow(this);
+            window.KeyDown += HandleKeyPress;
         }
 
         private void HandleKeyPress(object sender, KeyEventArgs e)
         {
-
             switch (e.Key)
             {
-                case Key.Space: 
+                case Key.Space:
                     _controls.PauseButton_Click(sender, e);
                     break;
                 case Key.Left:
@@ -65,15 +61,69 @@ namespace CMVideo
                     _controls.Forward10_Click(sender, e);
                     break;
                 case Key.F:
-                    _controls.meme(sender, e);
+                    ToggleFullScreen();
                     break;
+                case Key.Escape:
+                    if (_isFullScreen)
+                        ToggleFullScreen();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Toggle between fullscreen and windowed mode
+        /// </summary>
+        public void ToggleFullScreen()
+        {
+            if (_isFullScreen)
+            {
+                // Restore windowed mode
+                WindowStyle = _previousWindowStyle;
+                ResizeMode = _previousResizeMode;
+                Topmost = false;
+                WindowState = _previousWindowState;
+                Top = _previousTop;
+                Left = _previousLeft;
+                Width = _previousWidth;
+                Height = _previousHeight;
+                _isFullScreen = false;
+            }
+            else
+            {
+                // Save current state
+                _previousWindowState = WindowState;
+                _previousWindowStyle = WindowStyle;
+                _previousResizeMode = ResizeMode;
+                _previousTop = Top;
+                _previousLeft = Left;
+                _previousWidth = Width;
+                _previousHeight = Height;
+
+                // Go fullscreen: borderless maximized
+                WindowState = WindowState.Normal; // Reset first to avoid taskbar overlap
+                WindowStyle = WindowStyle.None;
+                ResizeMode = ResizeMode.NoResize;
+                Topmost = true;
+                WindowState = WindowState.Maximized;
+                _isFullScreen = true;
+            }
+        }
+
+        /// <summary>
+        /// Handle double-click on the VideoView to toggle fullscreen
+        /// </summary>
+        private void VideoView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+            {
+                ToggleFullScreen();
+                e.Handled = true;
             }
         }
 
         protected override void OnClosed(EventArgs e)
         {
             VideoView.Dispose();
-            
         }
     }
 }
