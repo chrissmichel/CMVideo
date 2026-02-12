@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
@@ -259,6 +260,7 @@ namespace CMVideo.ViewModels
             var media = new Media(_libVLC, new Uri(filePath));
             _mediaPlayer.Media = media;
             _mediaPlayer.Play();
+            ToggleLoop();
         }
 
         private void PlayPause()

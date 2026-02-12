@@ -12,7 +12,7 @@ namespace CMVideo.Views
     /// </summary>
     public partial class PlayerWindow : Window
     {
-        readonly MediaControls _controls;
+        private readonly MediaControls _controls;
 
         // Fullscreen state
         private bool _isFullScreen;
@@ -44,7 +44,7 @@ namespace CMVideo.Views
 
         private void Player_Loaded(object sender, RoutedEventArgs e)
         {
-            var window = Window.GetWindow(this);
+            var window = GetWindow(this);
             window.KeyDown += HandleKeyPress;
         }
 
@@ -74,7 +74,7 @@ namespace CMVideo.Views
         /// <summary>
         /// Toggle between fullscreen and windowed mode
         /// </summary>
-        public void ToggleFullScreen()
+        private void ToggleFullScreen()
         {
             if (_isFullScreen)
             {
@@ -115,11 +115,7 @@ namespace CMVideo.Views
         /// </summary>
         private void VideoView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-            {
                 ToggleFullScreen();
-                e.Handled = true;
-            }
         }
 
         protected override void OnClosed(EventArgs e)
