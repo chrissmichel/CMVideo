@@ -9,11 +9,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
-            <!--  VideoView takes most of the space here maybe fix IDK  -->
+            <!--  VideoView area  -->
             <RowDefinition Height="Auto" />
             <!--  Control buttons  -->
             <RowDefinition Height="Auto" />
-            <!--  Slider  -->
+            <!--  Position slider  -->
         </Grid.RowDefinitions>
 
         <StackPanel
@@ -53,12 +53,7 @@
                     x:Name="StopButton">
                     <materialDesign:PackIcon Kind="Stop">
                         <materialDesign:PackIcon.LayoutTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
-                                <SkewTransform />
-                                <RotateTransform />
-                                <TranslateTransform />
-                            </TransformGroup>
+                            <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
                         </materialDesign:PackIcon.LayoutTransform>
                     </materialDesign:PackIcon>
                 </Button>
@@ -69,12 +64,7 @@
                     x:Name="PauseButton">
                     <materialDesign:PackIcon Kind="{Binding PlayPauseIcon}">
                         <materialDesign:PackIcon.LayoutTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
-                                <SkewTransform />
-                                <RotateTransform />
-                                <TranslateTransform />
-                            </TransformGroup>
+                            <ScaleTransform ScaleX="1.3" ScaleY="1.3" />
                         </materialDesign:PackIcon.LayoutTransform>
                     </materialDesign:PackIcon>
                 </Button>
@@ -85,13 +75,6 @@
                     Margin="5"
                     x:Name="Forward10">
                     <materialDesign:PackIcon Kind="FastForward10" Width="15" />
-                </Button>
-                <Button
-                    Command="{Binding ToggleLoopCommand}"
-                    HorizontalAlignment="Right"
-                    Margin="5"
-                    x:Name="Repeat">
-                    <materialDesign:PackIcon Kind="{Binding RepeatIcon}" Width="15" />
                 </Button>
                 <Slider
                     Cursor="Hand"
@@ -112,13 +95,5 @@
             Value="{Binding Position, Mode=TwoWay}"
             VerticalAlignment="Bottom"
             x:Name="VideoSlider" />
-        <Image
-            Height="218"
-            HorizontalAlignment="Left"
-            Margin="118,22,0,0"
-            RenderTransformOrigin="0.494,0.535"
-            VerticalAlignment="Top"
-            Width="277"
-            x:Name="ImageBox" />
     </Grid>
 </UserControl>

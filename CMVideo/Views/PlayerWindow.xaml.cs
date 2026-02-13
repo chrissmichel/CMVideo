@@ -115,7 +115,11 @@ namespace CMVideo.Views
         /// </summary>
         private void VideoView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            if (e.ChangedButton == MouseButton.Left)
+            {
                 ToggleFullScreen();
+                e.Handled = true;
+            }
         }
 
         protected override void OnClosed(EventArgs e)

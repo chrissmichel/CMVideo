@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using LibVLCSharp.Shared;
-using LibVLCSharp.WPF;
 using CMVideo.ViewModels;
 using MediaPlayer = LibVLCSharp.Shared.MediaPlayer;
 
@@ -14,7 +13,7 @@ namespace CMVideo.Views.Controls
     {
         private readonly PlayerWindow _parent;
         private MediaPlayerViewModel _viewModel;
-        private LibVLC _libVlc;
+        private LibVLC _libVLC;
         private MediaPlayer _mediaPlayer;
 
         public MediaControls(PlayerWindow parent, List<string> files)
@@ -35,8 +34,8 @@ namespace CMVideo.Views.Controls
         private void VideoView_Loaded(object sender, RoutedEventArgs e)
         {
             // Initialize LibVLC and MediaPlayer
-            _libVlc = new LibVLC(enableDebugLogs: true);
-            _mediaPlayer = new MediaPlayer(_libVlc);
+            _libVLC = new LibVLC("--input-repeat=255");
+            _mediaPlayer = new MediaPlayer(_libVLC);
             _parent.VideoView.MediaPlayer = _mediaPlayer;
 
             // Get the playlist from Tag
@@ -47,7 +46,7 @@ namespace CMVideo.Views.Controls
             }
 
             // Initialize ViewModel with the media player
-            _viewModel = new MediaPlayerViewModel(files, _libVlc, _mediaPlayer);
+            _viewModel = new MediaPlayerViewModel(files, _libVLC, _mediaPlayer);
 
             // Set DataContext for bindings
             this.DataContext = _viewModel;
@@ -80,7 +79,7 @@ namespace CMVideo.Views.Controls
             _viewModel?.Dispose();
             _mediaPlayer?.Stop();
             _mediaPlayer?.Dispose();
-            _libVlc?.Dispose();
+            _libVLC?.Dispose();
         }
 
         // Public methods for Player.xaml.cs keyboard shortcuts

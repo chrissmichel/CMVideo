@@ -1,8 +1,8 @@
 ﻿<Window
-    Height="1280"
+    Height="Auto"
     Loaded="Player_Loaded"
     Title="CMVideo"
-    Width="720"
+    Width="Auto"
     mc:Ignorable="d"
     x:Class="CMVideo.Views.PlayerWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

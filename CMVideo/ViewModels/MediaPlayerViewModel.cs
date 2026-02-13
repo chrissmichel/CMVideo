@@ -22,10 +22,9 @@ namespace CMVideo.ViewModels
         private readonly DispatcherTimer _timer;
         private readonly List<string> _playlist;
         private int _currentFileIndex;
-        
+
         // Cached values for change detection
         private bool _lastIsPlayingState;
-        private bool _lastIsLoopingState;
 
         // Backing fields
         private double _position;
@@ -192,18 +191,12 @@ namespace CMVideo.ViewModels
             if (_mediaPlayer == null || _mediaPlayer.Length <= 0)
                 return;
 
-            // Only update icons if state has changed (optimization)
+            // Only update play/pause icon if state has changed (optimization)
             bool isPlaying = _mediaPlayer.IsPlaying;
             if (isPlaying != _lastIsPlayingState)
             {
                 _lastIsPlayingState = isPlaying;
                 UpdatePlayPauseIcon();
-            }
-
-            if (_isLooping != _lastIsLoopingState)
-            {
-                _lastIsLoopingState = _isLooping;
-                UpdateRepeatIcon();
             }
 
             // Update position and timestamp
@@ -260,7 +253,6 @@ namespace CMVideo.ViewModels
             var media = new Media(_libVLC, new Uri(filePath));
             _mediaPlayer.Media = media;
             _mediaPlayer.Play();
-            ToggleLoop();
         }
 
         private void PlayPause()
@@ -274,10 +266,12 @@ namespace CMVideo.ViewModels
                 if (_mediaPlayer.Media == null && _playlist.Count > 0)
                 {
                     PlayFile(_playlist[_currentFileIndex]);
+                    _timer.Start();
                 }
                 else
                 {
                     _mediaPlayer.Play();
+                    _timer.Start();
                 }
             }
             UpdatePlayPauseIcon();
