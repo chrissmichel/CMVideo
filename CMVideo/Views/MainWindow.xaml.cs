@@ -159,7 +159,7 @@ namespace CMVideo.Views
                     return;
 
                 var thumbnail = await _thumbnailService.GenerateThumbnailAsync(mediaItem, cancellationToken);
-                if (thumbnail != null && !cancellationToken.IsCancellationRequested)
+                if (!cancellationToken.IsCancellationRequested)
                 {
                     // Update on UI thread
                     Dispatcher.Invoke(() =>

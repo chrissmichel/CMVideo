@@ -10,6 +10,3 @@
 
 -- Features 
  - Rework UI to not use material design
- - Change volume slider to be more granular and have values
- - hide controls when video is playing
- - 
