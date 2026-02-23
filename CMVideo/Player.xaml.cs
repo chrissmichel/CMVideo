@@ -24,19 +24,18 @@ namespace CMVideo
         readonly MainWindow _mainWindow;
 
 
-        public Player(List<string> files)
+        public Player(List<string> files, MainWindow mainWindow = null)
         {
-          
             InitializeComponent();
 
+            _mainWindow = mainWindow;
             _controls = new Controls(this, files);
             VideoView.Content = _controls;
-            VideoView.Content = _mainWindow;
         }
 
         private void Player_Loaded(object sender, RoutedEventArgs e)
         {
-          var window = Window.GetWindow(this);
+          var window = GetWindow(this);
           window.KeyDown += HandleKeyPress;
         }
 
@@ -54,15 +53,13 @@ namespace CMVideo
                 case Key.Right:
                     _controls.Forward10_Click(sender, e);
                     break;
-                case Key.F:
-                    _controls.meme(sender, e);
-                    break;
             }
         }
 
         protected override void OnClosed(EventArgs e)
         {
             VideoView.Dispose();
+            
         }
     }
 }

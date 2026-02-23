@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using LibVLCSharp.Shared;
 using LibVLCSharp.WPF;
@@ -22,7 +23,7 @@ namespace CMVideo
         private readonly DispatcherTimer _timer;
         private bool _isDraggingSlider;
         private bool _endReached = false;
-        
+        private bool _repeatOn = false;
         
         public Controls(Player Parent, List<string> files)
         {
@@ -33,14 +34,12 @@ namespace CMVideo
             InitializeComponent();
             Core.Initialize();
             Parent.VideoView.Loaded += VideoView_Loaded;
-            PlayButton.Click += PlayButton_Click;
+
             StopButton.Click += StopButton_Click;
             Unloaded += Controls_Unloaded;
             PauseButton.Click += PauseButton_Click;
-            
-             
-
-          
+            Repeat.Click += Repeat_Click;
+            UpdateRepeatButtonIcon();
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(25);
             _timer.Tick += Timer_Tick;
@@ -51,11 +50,12 @@ namespace CMVideo
                 _mediaPlayer.EndReached += MediaPlayer_EndReached;
 
             }
-           
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(VideoSlider_DragStarted), true);
-            videoSlider.AddHandler(Slider.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
-            videoSlider.ValueChanged += VideoSlider_ValueChanged;
 
+            VideoSlider.AddHandler(PreviewMouseLeftButtonDownEvent,
+                new MouseButtonEventHandler(VideoSlider_DragStarted), true);
+            VideoSlider.AddHandler(PreviewMouseLeftButtonUpEvent,
+                new MouseButtonEventHandler(VideoSlider_DragCompleted), true);
+            VideoSlider.ValueChanged += VideoSlider_ValueChanged;
         }
 
         private void MediaPlayer_EndReached(object sender, EventArgs e)
@@ -64,7 +64,13 @@ namespace CMVideo
 
             Dispatcher.InvokeAsync(() =>
             {
-              
+                if (_repeatOn)
+                {
+                    _mediaPlayer.Stop();
+                    _mediaPlayer.Play();
+
+                    return;
+                }
 
                 if (filecount < files.Count - 1)
                 {
@@ -83,29 +89,24 @@ namespace CMVideo
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-           
+            UpdateRepeatButtonIcon();
+
+            UpdatePlayButtonIcon();
+
             if (_mediaPlayer != null && _mediaPlayer.Length > 0)
             {
                 Dispatcher.Invoke(() =>
                 {
                     if (!_isDraggingSlider) // Update slider only if not dragging
                     {
-                        videoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
+                        VideoSlider.Value = (double)_mediaPlayer.Time / _mediaPlayer.Length;
                     }
                 });
             }
+
             Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(_mediaPlayer.Time));
         }
-
-        public void meme(object senter, EventArgs e)
-        {
-            if (_mediaPlayer.IsPlaying)
-            {
-                _mediaPlayer.Pause();
-            }
-
-            _mediaPlayer.Time += (long)41.67;
-        }
+        
 
         private void VideoSlider_DragStarted(object sender, MouseButtonEventArgs e)
         {
@@ -115,14 +116,15 @@ namespace CMVideo
         private void VideoSlider_DragCompleted(object sender, MouseButtonEventArgs e)
         {
             _isDraggingSlider = false;
-            SeekTo(TimeSpan.FromMilliseconds(videoSlider.Value * _mediaPlayer.Length));
+            SeekTo(TimeSpan.FromMilliseconds(VideoSlider.Value * _mediaPlayer.Length));
         }
 
         private void VideoSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isDraggingSlider)
             {
-                Timestamp.Content = string.Format("{0:mm\\:ss}", TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
+                Timestamp.Content = string.Format("{0:mm\\:ss}",
+                    TimeSpan.FromMilliseconds(e.NewValue * _mediaPlayer.Length));
             }
         }
 
@@ -132,6 +134,7 @@ namespace CMVideo
             _mediaPlayer.Stop();
             _mediaPlayer.Dispose();
             _libVLC.Dispose();
+            files.Clear();
         }
 
         private void VideoView_Loaded(object sender, RoutedEventArgs e)
@@ -141,13 +144,9 @@ namespace CMVideo
             parent.VideoView.MediaPlayer = _mediaPlayer;
             _mediaPlayer.Volume = (int)Volume.Value;
             _mediaPlayer.EndReached += MediaPlayer_EndReached;
-     
+
             PlayButton_Click(sender, e);
-            // Subscribe to the EndReached event here
-       
-
         }
-
 
         void StopButton_Click(object sender, RoutedEventArgs e)
         {
@@ -155,6 +154,7 @@ namespace CMVideo
             {
                 _mediaPlayer.Stop();
             }
+
             _timer.Stop();
         }
 
@@ -169,9 +169,10 @@ namespace CMVideo
             {
                 file_path = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4";
             }
+
             var media = new Media(_libVLC, new Uri(file_path));
             _mediaPlayer.Play(media);
-  
+
             _timer.Start();
         }
 
@@ -190,13 +191,14 @@ namespace CMVideo
 
         public void Rewind10_Click(object sender, RoutedEventArgs e)
         {
-            if (_mediaPlayer != null )
+            if (_mediaPlayer != null)
             {
                 if (TimeSpan.FromMilliseconds(_mediaPlayer.Time) < TimeSpan.FromSeconds(10))
                 {
                     SeekTo(TimeSpan.FromSeconds(0));
                     return;
                 }
+
                 SeekTo(TimeSpan.FromMilliseconds(_mediaPlayer.Time) - TimeSpan.FromSeconds(10));
             }
         }
@@ -206,6 +208,44 @@ namespace CMVideo
             _mediaPlayer.Time = (long)time.TotalMilliseconds;
         }
 
-      
+        private void Repeat_Click(object sender, RoutedEventArgs e)
+        {
+            _repeatOn = !_repeatOn;
+
+            UpdateRepeatButtonIcon();
+        }
+
+        
+        private void UpdatePlayButtonIcon()
+        {
+            if (_mediaPlayer != null && _mediaPlayer.IsPlaying)
+            {
+                
+                PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PauseIcon") };
+            }
+            else
+            {
+                
+                PlayButton.Content = new Control { Template = (ControlTemplate)FindResource("PlayIcon") };
+            }
+        }
+
+        private void UpdateRepeatButtonIcon()
+        {
+            
+            var repeatIcon = new Control { Template = (ControlTemplate)FindResource("RepeatIcon") };
+
+            // Apply styling based on repeat state
+            if (_repeatOn)
+            {
+                repeatIcon.Foreground = new SolidColorBrush(Colors.Green);
+            }
+            else
+            {
+                repeatIcon.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+
+            Repeat.Content = repeatIcon;
+        }
     }
 }

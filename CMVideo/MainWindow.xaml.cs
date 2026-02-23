@@ -28,37 +28,39 @@ namespace CMVideo
     {
         string file_path = null;
         string last_path = null;
-        readonly List<string> filenames = new List<string>();
+        readonly List<string> _filenames = new List<string>();
 
         public MainWindow()
         {
             InitializeComponent ();
-            ExampleButton.Click += ExampleButton_Click;
-            
+           
         }
 
         private void ExampleButton_Click(object sender, RoutedEventArgs e)
-        {
-
-            //var window = new Player(file_path);
-          //  window.Show();
+        { 
+            File_Button_Click(sender, e);
+            var window = new Player(_filenames); 
+            window.Show();
         }
-
-
 
         private void Multiplay_Click(object sender, RoutedEventArgs e)
         {
-           var file_names = Get_filenames(sender, e);
-           var window = new Player(file_names);
-            window.Show();
+           var _filenames = Get_filenames(sender, e);
+
+           string files = "";
+           foreach (var str in _filenames)
+           {
+             files += str + "\n";
+           }
+           var window = new Player(_filenames);
+           window.Show();
         }
 
         private void File_Button_Click(object sender, RoutedEventArgs e)
         {
-          Get_filenames(sender, e);
+         
+            Get_filenames(sender, e);
         }
-
-
 
         /**
          * Get the filenames of the videos you want to play
@@ -80,16 +82,16 @@ namespace CMVideo
             {
                 file_path = fd.FileName;
                 last_path = System.IO.Path.GetFullPath(file_path);
-               
+
                 foreach (string file in fd.FileNames)
                 {
                    filenames.Add(file);
                 }
 
-                return filenames;
+                return _filenames;
             }
 
-            return filenames;
+            return _filenames;
         }
         
         /**
@@ -123,7 +125,6 @@ namespace CMVideo
                     // do nothing
                 }
 
-   
             }
             else
             {
