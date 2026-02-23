@@ -75,7 +75,7 @@ namespace CMVideo
                 DefaultExt = "*.*",
                 InitialDirectory = "C:\\Users\\" + userName + "\\Videos"
             };
-
+            
             bool? success = fd.ShowDialog();
 
             if (success == true)
@@ -85,7 +85,7 @@ namespace CMVideo
 
                 foreach (string file in fd.FileNames)
                 {
-                   _filenames.Add(file);
+                   filenames.Add(file);
                 }
 
                 return _filenames;
@@ -162,7 +162,7 @@ namespace CMVideo
             }
             catch
             {
-                Console.WriteLine("Unable to get username");
+               MessageBox.Show("Error getting username");
             }
             return "";
         }
